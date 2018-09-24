@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="style/form.css">
+    <title>order</title>
+</head>
+
+<body>
+    <nav>
+        <div class="topnav">
+            <a class="logo" href="index.html"><img src="images/logo.png" alt="this is logo" srcset=""></a>
+            <a href="index.html">Home</a>
+            <a href="all-beers.html">See All Beers</a>
+            <a class="active" href="order.html">Order Beer</a>
+            <a class="right" href="register.html">Register</a>
+            <a class="right" href="login.html">Log in</a>
+        </div>
+    </nav>
+    <main>
+        <center>
+            <h1>Order beer</h1>
+            <form>
+                <label>Brand</label>
+                <select>
+                    <option selected disabled>Select a brand</option>
+                    <option>Corona Extra 330ml</option>
+                    <option>Stella Artois 500ml</option>
+                    <option>Carlsberg 330ml</option>
+                    <option>Hainiken 330ml</option>
+                </select>
+                <label>Quantity</label>
+                <input type="number" min="1" max="15" placeholder="Enter amount of beers (1-15)" />
+                <label>Destination</label>
+                <select>
+                    <option selected disabled>Select destination</option>
+                    <option>SoftUni</option>
+                    <option>Vratsa</option>
+                    <option>Montana</option>
+                    <option>Etropole</option>
+                    <option>Mirovqne</option>
+                </select>
+                <label>Enter your birthdate</label>
+                <input placeholder="mm/dd/yyyy" type="date" />
+                <label>Got an oppinion, comments, recommendations? Share with us</label>
+                <textarea name="message" row="10" cols="15">Please, type here!</textarea>
+                <input type="submit" value="Order">
+
+            </form>
+        </center>
+    </main>
+
+    <footer>
+        <hr/>
+        <p><em>&copy; 2017 &ndash; SoftUni Beers</em></p>
+    </footer>
+
+</body>
+
+</html>
