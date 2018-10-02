@@ -6,6 +6,8 @@
     using System.Text;
     using Contracts;
     using SIS.Http.Common;
+    using SIS.Http.Cookies;
+    using SIS.Http.Cookies.Contracts;
     using SIS.Http.Extensions;
     using SIS.Http.Headers;
     using SIS.Http.Headers.Contracts;
@@ -20,6 +22,7 @@
         {
             this.StatusCode = statusCode;
             this.Headers = new HttpHeaderCollection();
+            this.Cookies = new HttpCookieCollection();
             this.Content = new byte[0];
         }
 
@@ -27,11 +30,18 @@
 
         public IHttpHeaderCollection Headers { get; private set; }
 
+        public IHttpCookieCollection Cookies { get; private set; }
+
         public byte[] Content { get; set; }
 
         public void AddHeader(HttpHeader header)
         {
             this.Headers.Add(header);
+        }
+
+        public void AddCookie(HttpCookie cookie)
+        {
+            this.Cookies.Add(cookie);
         }
 
         public byte[] GetBytes()
@@ -45,11 +55,16 @@
         {
             var result = new StringBuilder();
 
-            result.Append($"{GlobalConstants.HttpOnProtocolFrame} {this.StatusCode.GetResponseLine()}")
-                .Append(Environment.NewLine)
-                .Append(this.Headers)
-                .Append(Environment.NewLine)
-                .Append(Environment.NewLine);
+            result.AppendLine($"{GlobalConstants.HttpOnProtocolFrame} {this.StatusCode.GetResponseLine()}")
+                .AppendLine($"{this.Headers}");
+
+            if (this.Cookies.HasCookies())
+            {
+                result.Append($"Set-Cookie: {this.Cookies}")
+                    .Append(Environment.NewLine);
+            }
+
+            result.Append(Environment.NewLine);
 
             return result.ToString();
         }

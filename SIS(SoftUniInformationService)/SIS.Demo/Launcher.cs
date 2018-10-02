@@ -6,7 +6,7 @@ namespace SIS.Demo
     using SIS.WebServer;
     using SIS.WebServer.Routing;
 
-    class StartUp
+    class Launcher
     {
         static void Main(string[] args)
         {

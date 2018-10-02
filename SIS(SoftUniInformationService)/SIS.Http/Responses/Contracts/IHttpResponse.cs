@@ -4,6 +4,7 @@ namespace SIS.Http.Responses.Contracts
     using System.Net;
     using Headers.Contracts;
     using Headers;
+    using SIS.Http.Cookies;
 
     public interface IHttpResponse
     {
@@ -16,5 +17,7 @@ namespace SIS.Http.Responses.Contracts
         void AddHeader(HttpHeader header);
 
         byte[] GetBytes();
+
+        void AddCookie(HttpCookie cookie);
     }
 }

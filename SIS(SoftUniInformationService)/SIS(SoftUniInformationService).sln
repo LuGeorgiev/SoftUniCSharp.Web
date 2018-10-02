@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2026
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SIS.Http", "SIS.Http\SIS.Http.csproj", "{4FE2E0BF-DEBD-49DF-B791-57790CD77ACB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SIS.Http", "SIS.Http\SIS.Http.csproj", "{4FE2E0BF-DEBD-49DF-B791-57790CD77ACB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SIS.WebServer", "SIS.WebServer\SIS.WebServer.csproj", "{6B0D49DA-14EE-4171-A3FE-381C76B7B293}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SIS.WebServer", "SIS.WebServer\SIS.WebServer.csproj", "{6B0D49DA-14EE-4171-A3FE-381C76B7B293}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SIS.Demo", "SIS.Demo\SIS.Demo.csproj", "{F314BB3D-B8CE-4A7A-96C8-8058F57D9E81}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SIS.Demo", "SIS.Demo\SIS.Demo.csproj", "{F314BB3D-B8CE-4A7A-96C8-8058F57D9E81}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

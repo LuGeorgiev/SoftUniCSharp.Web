@@ -18,6 +18,7 @@
         {
             this.port = port;
             this.listener = new TcpListener(IPAddress.Parse(LocalHostIpAddress), this.port);
+
             this.serverRoutingTable = serverRoutingTable;
         }
 
@@ -38,6 +39,7 @@
             {
                 var client = await this.listener.AcceptSocketAsync();
                 var connectionHandler = new ConnectionHandler(client, this.serverRoutingTable);
+
                 var responseTask = connectionHandler.ProcessRequestAsync();
 
                 responseTask.Wait();
