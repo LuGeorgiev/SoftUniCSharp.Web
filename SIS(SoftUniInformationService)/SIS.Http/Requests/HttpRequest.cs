@@ -30,9 +30,6 @@
 
         public string Url { get; private set; }
 
-        //TODO Session in request is not described
-        public IHttpSession Session { get; set; }
-
         public Dictionary<string, object> FormData { get; private set; }
 
         public Dictionary<string, object> QueryData { get; private set; }
@@ -40,6 +37,9 @@
         public IHttpHeaderCollection Headers { get; }
 
         public IHttpCookieCollection Cookies { get; }
+
+        //TODO Session in request is not described
+        public IHttpSession Session { get; set; }
 
         public HttpRequestMethod RequestMethod { get; private set; }
                 
@@ -70,36 +70,56 @@
 
         private void ParseCookies()
         {
-            var headers = this.Headers
-                .ToString()
-                .Split(Environment.NewLine)
-                .ToArray();
-
-            foreach (var headar in headers)
+            if (!this.Headers.ContainsHeader(GlobalConstants.CookieRequestHeaderName))
             {
-                if (headar.Contains("Cookie"))
-                {
-                    var cookieIndex = headar.IndexOf("Cookie: ");
-                    var cookieString = headar.Substring(cookieIndex + 8);
-                    var cookies = cookieString.Split("; ", StringSplitOptions.RemoveEmptyEntries);
-
-                    foreach (var cookie in cookies)
-                    {
-                        var cookieKey = cookie.Split("=").FirstOrDefault();
-                        var cookieValue = cookie.Split("=").LastOrDefault();
-
-                        if (cookieKey==null||cookieValue==null||cookieKey==cookieValue)
-                        {
-                            throw new BadRequestException();
-                        }
-
-                        if (!this.Cookies.ContainsCookie(cookieKey))
-                        {
-                            this.Cookies.Add(new HttpCookie(cookieKey, cookieValue));
-                        }
-                    }
-                }
+                return;
             }
+
+            var cookiesRaw = this.Headers.GetHeader(GlobalConstants.CookieRequestHeaderName).Value.ToString();
+            var cookies = cookiesRaw.Split(", ", StringSplitOptions.RemoveEmptyEntries);
+            foreach (var rawCookie in cookies)
+            {
+                var cookieKVP = rawCookie.Split('=',2);
+                if (cookieKVP.Length!=GlobalConstants.NumberOfParametersInReuestKVP)
+                {
+                    continue;
+                }
+                var cookieName = cookieKVP[0];
+                var cookieValue = cookieKVP[1];
+                this.Cookies.Add(new HttpCookie(cookieName, cookieValue));
+            }
+
+
+            //var headers = this.Headers
+            //    .ToString()
+            //    .Split(Environment.NewLine)
+            //    .ToArray();
+
+            //foreach (var headar in headers)
+            //{
+            //    if (headar.Contains("Cookie"))
+            //    {
+            //        var cookieIndex = headar.IndexOf("Cookie: ");
+            //        var cookieString = headar.Substring(cookieIndex + 8);
+            //        var cookies = cookieString.Split("; ", StringSplitOptions.RemoveEmptyEntries);
+
+            //        foreach (var cookie in cookies)
+            //        {
+            //            var cookieKey = cookie.Split("=").FirstOrDefault();
+            //            var cookieValue = cookie.Split("=").LastOrDefault();
+
+            //            if (cookieKey==null||cookieValue==null||cookieKey==cookieValue)
+            //            {
+            //                throw new BadRequestException();
+            //            }
+
+            //            if (!this.Cookies.ContainsCookie(cookieKey))
+            //            {
+            //                this.Cookies.Add(new HttpCookie(cookieKey, cookieValue));
+            //            }
+            //        }
+            //    }
+            //}
         }
 
         private bool IsValidRequestLine(string[] requestLine)
@@ -159,7 +179,7 @@
             }
             foreach (var requestHeader in requestHeaders)
             {
-                if (string.IsNullOrEmpty(requestHeader))
+                if (string.IsNullOrEmpty(requestHeader)||!requestHeader.Contains(": "))
                 {
                     return;
                 }
@@ -186,10 +206,11 @@
             {
                 this.ParseQueryParameters(this.Url);
 
-                if (hasBody)
-                {
-                    this.ParseFormDataParameters(bodyParameters);
-                }
+            }
+
+            if (hasBody&&bodyParameters.Contains('&'))
+            {
+                this.ParseFormDataParameters(bodyParameters);
             }
 
         }
@@ -204,7 +225,7 @@
             {
                 var kvpBody = kvp.Split('=', StringSplitOptions.RemoveEmptyEntries);
 
-                if (kvpBody.Length != 2)
+                if (kvpBody.Length != GlobalConstants.NumberOfParametersInReuestKVP)
                 {
                     throw new BadRequestException();
                 }
@@ -223,9 +244,10 @@
                 .Split(new[] { '?' ,'#'})
                 .Skip(1)
                 .ToArray()[0];
+
             if (string.IsNullOrEmpty(queryParams))
             {
-                throw new BadRequestException();
+                return;
             }
 
             var queryKVPs = queryParams

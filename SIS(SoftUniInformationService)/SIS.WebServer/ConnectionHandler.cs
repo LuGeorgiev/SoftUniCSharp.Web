@@ -74,7 +74,7 @@
         private IHttpResponse HandleRequest(IHttpRequest httpRequest)
         {
             if (!this.serverRoutingTable.Routes.ContainsKey(httpRequest.RequestMethod)
-                ||!this.serverRoutingTable.Routes[httpRequest.RequestMethod].ContainsKey(httpRequest.Path))
+                ||!this.serverRoutingTable.Routes[httpRequest.RequestMethod].ContainsKey(httpRequest.Path.ToLower()))
             {
                 return new HttpResponse(HttpStatusCode.NotFound);
             }
@@ -97,6 +97,7 @@
             {
                 var cookie =httpRequest.Cookies.GetCookie(HttpSessionStorage.SessionCookieKey);
                 sessionId = cookie.Value;
+
                 httpRequest.Session = HttpSessionStorage.GetSession(sessionId);
             }
             else
@@ -110,9 +111,9 @@
 
         private void SetResponseSession(IHttpResponse httpResponse, string sessionId)
         {
-            if (sessionId==null)
+            if (sessionId!=null)
             {
-                httpResponse.AddCookie(new HttpCookie(HttpSessionStorage.SessionCookieKey, $"{sessionId};HttpOnly=true"));
+                httpResponse.AddCookie(new HttpCookie(HttpSessionStorage.SessionCookieKey, $"{sessionId}; HttpOnly"));
             }
         }
     }

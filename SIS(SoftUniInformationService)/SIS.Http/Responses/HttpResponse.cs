@@ -5,12 +5,12 @@
     using System.Net;
     using System.Text;
     using Contracts;
-    using SIS.Http.Common;
-    using SIS.Http.Cookies;
-    using SIS.Http.Cookies.Contracts;
-    using SIS.Http.Extensions;
-    using SIS.Http.Headers;
-    using SIS.Http.Headers.Contracts;
+    using Common;
+    using Cookies;
+    using Cookies.Contracts;
+    using Extensions;
+    using Headers;
+    using Headers.Contracts;
 
     public class HttpResponse : IHttpResponse
     {
@@ -60,11 +60,13 @@
 
             if (this.Cookies.HasCookies())
             {
-                result.Append($"Set-Cookie: {this.Cookies}")
-                    .Append(Environment.NewLine);
+                foreach (var httpCookie in this.Cookies)
+                {
+                    result.AppendLine($"{GlobalConstants.CookieResponseHeaderName}: {this.Cookies}");
+                }
             }
 
-            result.Append(Environment.NewLine);
+            result.AppendLine();
 
             return result.ToString();
         }

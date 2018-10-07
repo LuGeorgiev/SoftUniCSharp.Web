@@ -1,32 +1,64 @@
 ﻿namespace SIS.Http.Cookies
 {
     using Contracts;
+    using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Net;
 
     public class HttpCookieCollection : IHttpCookieCollection
     {
-        private IDictionary<string,HttpCookie> CookieRepository;
+        private IDictionary<string,HttpCookie> cookiesRepository;
 
         public HttpCookieCollection()
         {
-            this.CookieRepository = new Dictionary<string, HttpCookie>();
+            this.cookiesRepository = new Dictionary<string, HttpCookie>();
         }
 
         public void Add(HttpCookie cookie)
-            =>this.CookieRepository.Add(cookie.Key, cookie);
-
+        {
+            if (cookie == null)
+            {
+                throw new ArgumentNullException("Invalid cookie");
+            }
+            if (!this.ContainsCookie(cookie.Key))
+            {
+                this.cookiesRepository[cookie.Key]= cookie;
+            }
+        }
 
         public bool ContainsCookie(string key)
-            => this.CookieRepository.ContainsKey(key);
+            => this.cookiesRepository.ContainsKey(key);
 
         public HttpCookie GetCookie(string key)
-            => this.CookieRepository[key];
+        {
+            if (!this.ContainsCookie(key))
+            {
+                return null;
+            }
+
+           return this.cookiesRepository[key];
+        }
+
 
         public bool HasCookies()
-            => this.CookieRepository.Any();
+            => this.cookiesRepository.Any();
 
         public override string ToString()
-            => string.Join(", ", this.CookieRepository.Values);
+            => string.Join(", ", this.cookiesRepository.Values);
+
+        public IEnumerator<HttpCookie> GetEnumerator()
+        {
+            foreach (var cookie in this.cookiesRepository)
+            {
+                yield return cookie.Value;
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
     }
 }

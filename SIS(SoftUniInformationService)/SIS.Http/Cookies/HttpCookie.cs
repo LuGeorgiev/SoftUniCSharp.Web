@@ -24,12 +24,17 @@ namespace SIS.Http.Cookies
 
         public string Value { get;  }
 
-        public DateTime Expires { get;  }
+        public DateTime Expires { get; private set; }
 
         public bool IsNew { get;  }
 
+        public void Delete()
+        {
+            this.Expires = DateTime.UtcNow.AddDays(-1);
+        }
+
         public override string ToString()
-        => $"{this.Key}={this.Value}; Expires={this.Expires.ToLongTimeString()}";
+        => $"{this.Key}={this.Value}; Expires={this.Expires:R}"; //or instead of :R - ToString(R) to escape cultutal differences
 
     }
 }
