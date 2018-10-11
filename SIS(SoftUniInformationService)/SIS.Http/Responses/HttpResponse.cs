@@ -55,7 +55,7 @@
         {
             var result = new StringBuilder();
 
-            result.AppendLine($"{GlobalConstants.HttpOnProtocolFrame} {this.StatusCode.GetResponseLine()}")
+            result.AppendLine($"{GlobalConstants.HttpOneProtocolFrame} {this.StatusCode.GetResponseLine()}")
                 .AppendLine($"{this.Headers}");
 
             if (this.Cookies.HasCookies())

@@ -17,6 +17,7 @@
         private const string RootDirectoryRelativePath = "../../../";
         private const string ViewFolderName = "Views";
         private const string ControlerDefaultName = "Controller";
+        private const string LayoutFimeName = "_Layout";
         private const string HtmlFileExtension = ".html";
         private const string DirectorySeparator = "/";
 
@@ -51,6 +52,12 @@
 
         protected IHttpResponse View([CallerMemberName] string viewName="")
         {
+            var layoutViewPath = RootDirectoryRelativePath +
+                                ViewFolderName +
+                                DirectorySeparator +
+                                LayoutFimeName +
+                                HtmlFileExtension;
+
             //../../../Views/ControllerName/ActionName.html
             string filePath = RootDirectoryRelativePath +
                                 ViewFolderName +
@@ -64,19 +71,33 @@
             {
                 return new BadRequestResult($"View {viewName} not found.", HttpStatusCode.NotFound);
             }
-            var fileContent=File.ReadAllText(filePath);
+
+            string viewContent = BuildViewContent(filePath);
+
+            var viewLayout = File.ReadAllText(layoutViewPath);
+            var view = viewLayout.Replace("@RenderBody()", viewContent);
+
+
+            var response = new HtmlResult(view, HttpStatusCode.OK);
+            return response;
+        }
+
+        private string BuildViewContent(string filePath)
+        {
+            var viewContent = File.ReadAllText(filePath);
 
 
             foreach (var key in ViewBag.Keys)
             {
-                if (fileContent.Contains($"{{{{{key}}}}}"))
+                var dynamicPlaceholder = $"{{{{{key}}}}}";
+
+                if (viewContent.Contains(dynamicPlaceholder))
                 {
-                    fileContent = fileContent.Replace($"{{{{{key}}}}}", this.ViewBag[key]);
+                    viewContent = viewContent.Replace(dynamicPlaceholder, this.ViewBag[key]);
                 }
             }
 
-            var response = new HtmlResult(fileContent, HttpStatusCode.OK);
-            return response;
+            return viewContent;
         }
     }
 }

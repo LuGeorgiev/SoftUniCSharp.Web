@@ -30,6 +30,7 @@ namespace IRunesWebApp.Controllers
             {
                 return new RedirectResult("/login");
             }
+
             this.ViewBag[username] = username;//TODO refactoring needed
 
             var response =  new RedirectResult("/home/index");

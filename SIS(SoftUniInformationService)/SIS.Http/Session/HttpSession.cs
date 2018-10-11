@@ -24,7 +24,7 @@
                 throw new ArgumentException();
             }
 
-            this.parameters[name]=parameter;
+            this.parameters.Add(name,parameter);
         }
 
 

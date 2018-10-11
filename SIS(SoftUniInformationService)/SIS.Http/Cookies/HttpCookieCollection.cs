@@ -9,11 +9,13 @@
 
     public class HttpCookieCollection : IHttpCookieCollection
     {
-        private IDictionary<string,HttpCookie> cookiesRepository;
+        private const string HttpCookieStringSeparator = "; ";
+
+        private IDictionary<string,HttpCookie> cookies;
 
         public HttpCookieCollection()
         {
-            this.cookiesRepository = new Dictionary<string, HttpCookie>();
+            this.cookies = new Dictionary<string, HttpCookie>();
         }
 
         public void Add(HttpCookie cookie)
@@ -22,14 +24,13 @@
             {
                 throw new ArgumentNullException("Invalid cookie");
             }
-            if (!this.ContainsCookie(cookie.Key))
-            {
-                this.cookiesRepository[cookie.Key]= cookie;
-            }
+          
+                this.cookies.Add(cookie.Key, cookie);
+            
         }
 
         public bool ContainsCookie(string key)
-            => this.cookiesRepository.ContainsKey(key);
+            => this.cookies.ContainsKey(key);
 
         public HttpCookie GetCookie(string key)
         {
@@ -38,19 +39,19 @@
                 return null;
             }
 
-           return this.cookiesRepository[key];
+           return this.cookies[key];
         }
 
 
         public bool HasCookies()
-            => this.cookiesRepository.Any();
+            => this.cookies.Any();
 
         public override string ToString()
-            => string.Join(", ", this.cookiesRepository.Values);
+            => string.Join(HttpCookieStringSeparator, this.cookies.Values);
 
         public IEnumerator<HttpCookie> GetEnumerator()
         {
-            foreach (var cookie in this.cookiesRepository)
+            foreach (var cookie in this.cookies)
             {
                 yield return cookie.Value;
             }

@@ -12,11 +12,18 @@
     using System.Net.Sockets;
     using System.Text;
     using System.Threading.Tasks;
+    using Http.Common;
+    using System.Linq;
+    using System.Reflection;
+    using SIS.WebServer.Results;
+    using System.IO;
 
     public class ConnectionHandler
     {
         private readonly Socket client;
         private readonly ServerRoutingTable serverRoutingTable;
+
+        private const string RootDirectory = "../../../";
 
         public ConnectionHandler(Socket client, ServerRoutingTable serverRoutingTable)
         {
@@ -73,13 +80,56 @@
 
         private IHttpResponse HandleRequest(IHttpRequest httpRequest)
         {
+            if (IsResourceRequest(httpRequest))
+            {
+                return this.HandleRequestResponse(httpRequest.Path);
+            }
+           
             if (!this.serverRoutingTable.Routes.ContainsKey(httpRequest.RequestMethod)
-                ||!this.serverRoutingTable.Routes[httpRequest.RequestMethod].ContainsKey(httpRequest.Path.ToLower()))
+            || !this.serverRoutingTable.Routes[httpRequest.RequestMethod].ContainsKey(httpRequest.Path.ToLower()))
+            {
+                return new HttpResponse(HttpStatusCode.NotFound);
+            }
+                      
+
+            return this.serverRoutingTable.Routes[httpRequest.RequestMethod][httpRequest.Path].Invoke(httpRequest);
+        }
+
+        private IHttpResponse HandleRequestResponse(string path)
+        {
+            var indexOfStartOfExtension = path.LastIndexOf('.');
+            var indexOfStartOfNameOfResource = path.LastIndexOf('/');
+            var pathExtension = path.Substring(path.LastIndexOf('.'));
+
+            var resourceName = path.Substring(indexOfStartOfNameOfResource);
+
+            var resourcePath = RootDirectory
+                + "Resources"
+                + $"/{pathExtension.Substring(1)}"  // to skip the . and extarct css
+                + resourceName;
+
+            if (!File.Exists(resourcePath))
             {
                 return new HttpResponse(HttpStatusCode.NotFound);
             }
 
-            return this.serverRoutingTable.Routes[httpRequest.RequestMethod][httpRequest.Path].Invoke(httpRequest);
+            var fileContent = File.ReadAllBytes(resourcePath);
+
+            return new InlineResourceResult(fileContent,HttpStatusCode.OK);
+        }
+
+        private bool IsResourceRequest(IHttpRequest httpRequest)
+        {
+            var requestPath = httpRequest.Path;
+            if (requestPath.Contains("."))
+            {
+                var pathExtension = requestPath.Substring(requestPath.LastIndexOf('.'));
+                bool isValid= GlobalConstants.ResourceExtensions.Contains(pathExtension);
+
+                return isValid;
+            }
+            //httpRequest.Path -> .js, .css -> Resource/css/?! -> bootestrap.min
+            return false;
         }
 
         private async Task PrepareResponse(IHttpResponse httpResponse)

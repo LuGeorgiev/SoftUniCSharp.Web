@@ -16,6 +16,15 @@
 
     public class HttpRequest : IHttpRequest
     {
+        private const char HttpRequestUrlQuerySeparator = '?';
+        private const char HttpRequestUrlFragmentSeparator = '#';
+        private const string HttpRequestHeaderNameValueSeparator = ": ";
+        private const string HttpRequestCookiesSeparator = "; ";
+        private const char HttpRequestCookieNameValueSeparator = '=';
+        private const char HttpRequestParameterSeparator = '&';
+        private const char HttpRequestParameterNameValueSeparator = '=';
+
+
         public HttpRequest(string requestString)
         {
             this.FormData = new Dictionary<string, object>();
@@ -37,8 +46,7 @@
         public IHttpHeaderCollection Headers { get; }
 
         public IHttpCookieCollection Cookies { get; }
-
-        //TODO Session in request is not described
+               
         public IHttpSession Session { get; set; }
 
         public HttpRequestMethod RequestMethod { get; private set; }
@@ -77,6 +85,7 @@
 
             var cookiesRaw = this.Headers.GetHeader(GlobalConstants.CookieRequestHeaderName).Value.ToString();
             var cookies = cookiesRaw.Split(", ", StringSplitOptions.RemoveEmptyEntries);
+
             foreach (var rawCookie in cookies)
             {
                 var cookieKVP = rawCookie.Split('=',2);
@@ -130,10 +139,11 @@
             }
 
             if (requestLine.Length == 3
-                && requestLine[2] ==GlobalConstants.HttpOnProtocolFrame)
+                && requestLine[2] ==GlobalConstants.HttpOneProtocolFrame) //TODO Here validation in GIT is !=Global Constants.HTTpOne
             {
                 return true;
             }
+
             return false;
         }
 
@@ -204,7 +214,7 @@
             //TODO following two if statements have to be reviewd
             if (this.Url.Contains("?"))
             {
-                this.ParseQueryParameters(this.Url);
+                this.ParseQueryParameters();
 
             }
 
@@ -234,11 +244,11 @@
                 var formDataValue = kvpBody[1];
 
                 // should we override or Add
-                this.FormData[formDataKey] = formDataValue;
+                this.FormData.Add(formDataKey, formDataValue);
             }
         }
 
-        private void ParseQueryParameters(string url)
+        private void ParseQueryParameters()
         {
             var queryParams = this.Url?
                 .Split(new[] { '?' ,'#'})
@@ -265,7 +275,7 @@
                 var queryValue = kvpQuery[1];
 
                 // should we override or Add
-                this.QueryData[queryKey]= queryValue;
+                this.QueryData.Add(queryKey, queryValue);
             }
         }
     }
