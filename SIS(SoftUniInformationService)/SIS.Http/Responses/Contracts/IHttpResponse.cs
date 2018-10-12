@@ -6,12 +6,13 @@ namespace SIS.Http.Responses.Contracts
     using Headers;
     using SIS.Http.Cookies;
     using SIS.Http.Cookies.Contracts;
+    using SIS.Http.Enums;
 
     public interface IHttpResponse
     {
-        HttpStatusCode StatusCode { get; set; }
-        
-        IHttpHeaderCollection Headers { get; }
+        HttpResponseStatusCode StatusCode { get; set; }
+
+        IHttpHeadersCollection Headers { get; }
 
         IHttpCookieCollection Cookies { get; }
 
@@ -19,8 +20,8 @@ namespace SIS.Http.Responses.Contracts
 
         void AddHeader(HttpHeader header);
 
-        byte[] GetBytes();
-
         void AddCookie(HttpCookie cookie);
+
+        byte[] GetBytes();
     }
 }

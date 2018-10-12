@@ -1,0 +1,12 @@
+﻿
+<h1>Create Track</h1>
+<hr />
+<form method="post" action="/Tracks/Create?albumId={{albumId}}">
+    <p>Name <input type="text" name="trackName" placeholder="Track Name" /></p>
+    <p>Link <input type="text" name="trackLink" placeholder="URL" /></p>
+    <p>Price <input type="number" step="any" name="trackPrice" placeholder="Track Price" /></p>
+    <p><input type="submit" value="Create" /></p>
+</form>
+<hr />
+<a href="/Albums/Details?id={{albumId}}">Back To Album</a>
+<hr />

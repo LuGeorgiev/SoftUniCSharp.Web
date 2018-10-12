@@ -17,6 +17,8 @@
     using System.Reflection;
     using SIS.WebServer.Results;
     using System.IO;
+    using SIS.Http.Exceptions;
+    using SIS.Http.Enums;
 
     public class ConnectionHandler
     {
@@ -29,22 +31,6 @@
         {
             this.client = client;
             this.serverRoutingTable = serverRoutingTable;
-        }
-
-        public async Task ProcessRequestAsync()
-        {
-            IHttpRequest httpRequest = await this.ReadRequest();
-
-            if (httpRequest!=null)
-            {
-                string sesssionId = this.SetRequestSession(httpRequest);
-                var httpResponse = this.HandleRequest(httpRequest);
-                this.SetResponseSession(httpResponse, sesssionId);
-
-                await this.PrepareResponse(httpResponse);
-            }
-
-            this.client.Shutdown(SocketShutdown.Both);
         }
 
         private async Task<IHttpRequest> ReadRequest()
@@ -75,8 +61,7 @@
             }
 
             return new HttpRequest(result.ToString());
-        }
-       
+        }       
 
         private IHttpResponse HandleRequest(IHttpRequest httpRequest)
         {
@@ -86,9 +71,9 @@
             }
            
             if (!this.serverRoutingTable.Routes.ContainsKey(httpRequest.RequestMethod)
-            || !this.serverRoutingTable.Routes[httpRequest.RequestMethod].ContainsKey(httpRequest.Path.ToLower()))
+            || !this.serverRoutingTable.Routes[httpRequest.RequestMethod].ContainsKey(httpRequest.Path))
             {
-                return new HttpResponse(HttpStatusCode.NotFound);
+                return new HttpResponse(HttpResponseStatusCode.NotFound);
             }
                       
 
@@ -110,12 +95,12 @@
 
             if (!File.Exists(resourcePath))
             {
-                return new HttpResponse(HttpStatusCode.NotFound);
+                return new HttpResponse(HttpResponseStatusCode.NotFound);
             }
 
             var fileContent = File.ReadAllBytes(resourcePath);
 
-            return new InlineResourceResult(fileContent,HttpStatusCode.OK);
+            return new InlineResourceResult(fileContent, HttpResponseStatusCode.Ok);
         }
 
         private bool IsResourceRequest(IHttpRequest httpRequest)
@@ -132,6 +117,33 @@
             return false;
         }
 
+        private string SetRequestSession(IHttpRequest request)
+        {
+            string sessionId = null;
+
+            if (request.Cookies.ContainsCookie(HttpSessionStorage.Session_Cookie_Key))
+            {
+                var cookie = request.Cookies.GetCookie(HttpSessionStorage.Session_Cookie_Key);
+                sessionId = cookie.Value;
+                request.Session = HttpSessionStorage.GetSession(sessionId);
+            }
+            else
+            {
+                sessionId = Guid.NewGuid().ToString();
+                request.Session = HttpSessionStorage.GetSession(sessionId);
+            }
+
+            return sessionId;
+        }
+
+        private void SetResponseSession(IHttpResponse response, string sessionId)
+        {
+            if (sessionId != null)
+            {
+                response.AddCookie(new HttpCookie(HttpSessionStorage.Session_Cookie_Key, $"{sessionId}; HttpOnly"));
+            }
+        }
+
         private async Task PrepareResponse(IHttpResponse httpResponse)
         {
             byte[] byteSegments = httpResponse.GetBytes();
@@ -139,32 +151,22 @@
             await this.client.SendAsync(byteSegments, SocketFlags.None);
         }
 
-        private string SetRequestSession(IHttpRequest httpRequest)
+        public async Task ProcessRequestAsync()
         {
-            string sessionId = null;
+            var httpRequest = await this.ReadRequest();
 
-            if (httpRequest.Cookies.ContainsCookie(HttpSessionStorage.SessionCookieKey))
+            if (httpRequest != null)
             {
-                var cookie =httpRequest.Cookies.GetCookie(HttpSessionStorage.SessionCookieKey);
-                sessionId = cookie.Value;
+                string sessionId = this.SetRequestSession(httpRequest);
 
-                httpRequest.Session = HttpSessionStorage.GetSession(sessionId);
-            }
-            else
-            {
-                sessionId = Guid.NewGuid().ToString();
-                httpRequest.Session = HttpSessionStorage.GetSession(sessionId);
+                var httpResponse = this.HandleRequest(httpRequest);
+
+                this.SetResponseSession(httpResponse, sessionId);
+
+                await this.PrepareResponse(httpResponse);
             }
 
-            return sessionId;
-        }
-
-        private void SetResponseSession(IHttpResponse httpResponse, string sessionId)
-        {
-            if (sessionId!=null)
-            {
-                httpResponse.AddCookie(new HttpCookie(HttpSessionStorage.SessionCookieKey, $"{sessionId}; HttpOnly"));
-            }
+            this.client.Shutdown(SocketShutdown.Both);
         }
     }
 

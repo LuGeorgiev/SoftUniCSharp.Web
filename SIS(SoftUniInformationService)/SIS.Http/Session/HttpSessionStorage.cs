@@ -5,9 +5,10 @@
 
     public class HttpSessionStorage
     {
-        public const string SessionCookieKey = "SIS_ID";
+        public const string Session_Cookie_Key = "SIS_ID";
 
-        private static readonly ConcurrentDictionary<string, IHttpSession> sessions = new ConcurrentDictionary<string, IHttpSession>();
+        private static readonly ConcurrentDictionary<string, HttpSession> sessions =
+            new ConcurrentDictionary<string, HttpSession>();
 
         public static IHttpSession GetSession(string id)
         {

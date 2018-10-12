@@ -11,6 +11,9 @@
     using System.Collections.Generic;
     using System.Net;
     using System.Runtime.CompilerServices;
+    using System;
+    using IRunesWebApp.Extensions;
+    using SIS.Http.Enums;
 
     public abstract class BaseController
     {
@@ -21,28 +24,28 @@
         private const string HtmlFileExtension = ".html";
         private const string DirectorySeparator = "/";
 
-        protected IRunesContext Context { get; set; }
-        protected readonly IHashService hashService;
-        protected readonly IUserCookieService userCookieService;
-        protected IDictionary<string, string> ViewBag { get; set; }
+        private readonly IUserCookieService userCookieService;
+        
 
         public BaseController()
         {
             this.Context = new IRunesContext();
-            this.hashService = new HashService();
             this.userCookieService = new UserCookieService();
             this.ViewBag = new Dictionary<string, string>();
         }
 
+        protected IDictionary<string, string> ViewBag { get; set; }
+
+        protected IRunesContext Context { get; set; }
+
         public bool IsAuthenticated(IHttpRequest request)
         {
-            return request.Session.ContainsParameters("username");
+            return request.Session.ContainsParameter("username");
         }
 
-        public void SignInUser(string username, IHttpRequest request, IHttpResponse response)
+        public void SignInUser(string username, IHttpResponse response, IHttpRequest request)
         {
-            request.Session.AddParameter("username", username);//TODO to check if this is needed
-
+            request.Session.AddParameter("username", username);
             var userCookieValue = this.userCookieService.GetUserCookieContent(username);
             response.Cookies.Add(new HttpCookie("Irunes_auth", userCookieValue));
         }
@@ -51,7 +54,7 @@
             this.GetType().Name.Replace(ControlerDefaultName, string.Empty);
 
         protected IHttpResponse View([CallerMemberName] string viewName="")
-        {
+        {            
             var layoutViewPath = RootDirectoryRelativePath +
                                 ViewFolderName +
                                 DirectorySeparator +
@@ -69,18 +72,28 @@
 
             if (!File.Exists(filePath))
             {
-                return new BadRequestResult($"View {viewName} not found.", HttpStatusCode.NotFound);
+                return new BadRequestResult($"View {viewName} not found.", HttpResponseStatusCode.NotFound);
             }
 
             string viewContent = BuildViewContent(filePath);
 
-            var viewLayout = File.ReadAllText(layoutViewPath);
-            var view = viewLayout.Replace("@RenderBody()", viewContent);
+            var layoutContent = File.ReadAllText(layoutViewPath);
+            var view = layoutContent.Replace("@RenderBody()", viewContent);
+            
+            //foreach (var viewBagKey in ViewBag.Keys)
+            //{
+            //    var dynamicDataPlaceholder = $"{{{{{viewBagKey}}}}}";
 
+            //    if (view.Contains(dynamicDataPlaceholder))
+            //    {
+            //        view = view.Replace(dynamicDataPlaceholder, ViewBag[viewBagKey]);
+            //    }
+            //}
 
-            var response = new HtmlResult(view, HttpStatusCode.OK);
+            var response = new HtmlResult(view, HttpResponseStatusCode.Ok);
             return response;
         }
+       
 
         private string BuildViewContent(string filePath)
         {

@@ -16,11 +16,11 @@
 
         Dictionary<string, object> QueryData { get; }
 
-        IHttpHeaderCollection Headers { get; }
+        IHttpCookieCollection Cookies { get; }
+
+        IHttpHeadersCollection Headers { get; }
 
         HttpRequestMethod RequestMethod { get; }
-
-        IHttpCookieCollection Cookies { get; }
 
         IHttpSession Session { get; set; }
     }

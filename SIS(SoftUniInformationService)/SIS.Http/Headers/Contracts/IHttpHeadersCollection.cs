@@ -1,6 +1,6 @@
 ﻿namespace SIS.Http.Headers.Contracts
 {
-    public interface IHttpHeaderCollection
+    public interface IHttpHeadersCollection
     {
         void Add(HttpHeader header);
 

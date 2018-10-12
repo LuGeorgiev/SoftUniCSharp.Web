@@ -6,14 +6,13 @@ namespace SIS.Http.Extensions
 {
     public static class StringExtensions
     {
-        public static string Capitalize(this string input)
+        public static string Capitalize(this string @string)
         {
-            if (string.IsNullOrEmpty(input))
+            if (!string.IsNullOrEmpty(@string))
             {
-                throw new ArgumentException($"String should not ne empty or null");
+                return Char.ToUpper(@string[0]) + @string.Substring(1).ToLower();
             }
-
-            return Char.ToUpper(input[0]) + input.Substring(1).ToLower();
+            throw new ArgumentException($"{nameof(@string)} cannot be null.");
         }
     }
 }

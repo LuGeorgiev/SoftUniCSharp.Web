@@ -1,5 +1,6 @@
 ﻿namespace SIS.WebServer.Results
 {
+    using SIS.Http.Enums;
     using SIS.Http.Headers;
     using SIS.Http.Responses;
     using System;
@@ -8,12 +9,12 @@
 
     public class BadRequestResult : HttpResponse
     {
-        private static string DefaultErrorHandling = "<h1> Error occured, see details</h1>";
+        private const string Default_Error_Heading = "<h1>Error occurred, see details:</h1>";
 
-        public BadRequestResult(string content, HttpStatusCode statusCode) 
+        public BadRequestResult(string content, HttpResponseStatusCode statusCode)
             : base(statusCode)
         {
-            content = DefaultErrorHandling + Environment.NewLine + content;
+            content = Default_Error_Heading + Environment.NewLine + content;
             this.Headers.Add(new HttpHeader("Content-Type", "text/html"));
             this.Content = Encoding.UTF8.GetBytes(content);
         }

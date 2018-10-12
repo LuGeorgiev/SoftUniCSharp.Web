@@ -1,7 +1,9 @@
-﻿using IRunesWebApp.Models;
+﻿using IRunesWebApp.Extensions;
+using IRunesWebApp.Models;
 using Services;
 using Services.Contracts;
 using SIS.Http.Cookies;
+using SIS.Http.Enums;
 using SIS.Http.Requests.Contracts;
 using SIS.Http.Responses.Contracts;
 using SIS.WebServer.Results;
@@ -13,56 +15,61 @@ namespace IRunesWebApp.Controllers
 {
     public class UsersController:BaseController
     {
+        private readonly IHashService hashService;
 
-        public IHttpResponse Login(IHttpRequest request)
-            => this.View();
+        public UsersController()
+        {
+            this.hashService = new HashService();
+        }
 
-        public IHttpResponse PostLogin(IHttpRequest request)
+        public IHttpResponse Login(IHttpRequest request) => this.View();
+
+        public IHttpResponse LoginPost(IHttpRequest request)
         {
             var username = request.FormData["username"].ToString();
             var password = request.FormData["password"].ToString();
+
             var hashedPassword = this.hashService.Hash(password);
 
-            var user = this.Context.Users
-                .FirstOrDefault(u => u.Username == username && u.HashedPassword == hashedPassword);
-            
-            if(user==null)
+            var user = this.Context.Users.FirstOrDefault(u => u.Username == username && u.HashedPassword == hashedPassword);
+
+            if (user == null)
             {
-                return new RedirectResult("/login");
+                return new RedirectResult("/Users/Login");
             }
 
-            this.ViewBag[username] = username;//TODO refactoring needed
+            var response = new RedirectResult("/Home/Index");
 
-            var response =  new RedirectResult("/home/index");
-            this.SignInUser(username, request, response);
+            this.SignInUser(username, response, request);
+
             return response;
-            //return this.View();
         }
 
-        public IHttpResponse Register(IHttpRequest request)
-            => this.View();
+        public IHttpResponse Register(IHttpRequest request) => this.View();
 
-        public IHttpResponse PostRegister(IHttpRequest request)
+        public IHttpResponse RegisterPost(IHttpRequest request)
         {
-            var username = request.FormData["username"].ToString();
+            var userName = request.FormData["username"].ToString().Trim();
             var password = request.FormData["password"].ToString();
             var confirmPassword = request.FormData["confirmPassword"].ToString();
 
-            if (password!=confirmPassword)
+            if (this.Context.Users.Any(x => x.Username == userName))
             {
-                return new BadRequestResult("Passwords do not match", HttpStatusCode.SeeOther);
+                return new BadRequestResult("User with the same name already exists.", HttpResponseStatusCode.BadRequest);
             }
 
+            if (password != confirmPassword)
+            {
+                return new RedirectResult("/Users/Register");
+            }
+     
             var hashedPassword = this.hashService.Hash(password);
-
+                        
             var user = new User
             {
-                Username=username,
-                HashedPassword=hashedPassword                 
+                Username = userName,
+                HashedPassword = hashedPassword,
             };
-
-            this.ViewBag[username] = username;//TODO refactoring needed
-
             this.Context.Users.Add(user);
 
             try
@@ -71,12 +78,21 @@ namespace IRunesWebApp.Controllers
             }
             catch (Exception e)
             {
-                return new BadRequestResult(e.Message, HttpStatusCode.InternalServerError);
+                return new BadRequestResult(e.Message, HttpResponseStatusCode.InternalServerError);
             }
 
-            var response =  new RedirectResult("/");
-            this.SignInUser(username, request,response);
+            var response = new RedirectResult("/");
+
+            this.SignInUser(userName, response, request);
+
             return response;
+        }
+
+        public IHttpResponse Logout(IHttpRequest request)
+        {
+            request.Session.ClearParameters();
+
+            return new RedirectResult("/");
         }
     }
 }

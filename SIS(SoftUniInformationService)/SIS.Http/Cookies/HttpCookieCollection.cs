@@ -9,9 +9,7 @@
 
     public class HttpCookieCollection : IHttpCookieCollection
     {
-        private const string HttpCookieStringSeparator = "; ";
-
-        private IDictionary<string,HttpCookie> cookies;
+        private IDictionary<string, HttpCookie> cookies;
 
         public HttpCookieCollection()
         {
@@ -22,15 +20,16 @@
         {
             if (cookie == null)
             {
-                throw new ArgumentNullException("Invalid cookie");
+                throw new ArgumentException("Cookie cannot be null.");
             }
-          
-                this.cookies.Add(cookie.Key, cookie);
-            
+
+            this.cookies[cookie.Key] = cookie;
         }
 
         public bool ContainsCookie(string key)
-            => this.cookies.ContainsKey(key);
+        {
+            return this.cookies.ContainsKey(key);
+        }
 
         public HttpCookie GetCookie(string key)
         {
@@ -38,16 +37,15 @@
             {
                 return null;
             }
-
-           return this.cookies[key];
+            return this.cookies[key];
         }
 
-
-        public bool HasCookies()
-            => this.cookies.Any();
+        public bool HasCookies() => this.cookies.Any();
 
         public override string ToString()
-            => string.Join(HttpCookieStringSeparator, this.cookies.Values);
+        {
+            return string.Join("; ", this.cookies.Values);
+        }
 
         public IEnumerator<HttpCookie> GetEnumerator()
         {

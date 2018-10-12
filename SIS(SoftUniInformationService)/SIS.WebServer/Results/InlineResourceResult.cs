@@ -1,4 +1,5 @@
-﻿using SIS.Http.Headers;
+﻿using SIS.Http.Enums;
+using SIS.Http.Headers;
 using SIS.Http.Responses;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ namespace SIS.WebServer.Results
 {
     public class InlineResourceResult : HttpResponse
     {
-        public InlineResourceResult(byte[] content, HttpStatusCode statusCode) 
+        public InlineResourceResult(byte[] content, HttpResponseStatusCode statusCode) 
             : base(statusCode)
         {
             this.Headers.Add(new HttpHeader(HttpHeader.ContentLength, content.Length.ToString()));

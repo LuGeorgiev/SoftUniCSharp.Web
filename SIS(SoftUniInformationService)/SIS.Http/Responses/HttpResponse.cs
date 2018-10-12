@@ -11,59 +11,55 @@
     using Extensions;
     using Headers;
     using Headers.Contracts;
+    using SIS.Http.Enums;
 
     public class HttpResponse : IHttpResponse
     {
-        public HttpResponse()
-        {
-        }
+        private const string Cookie_Response_Header = "Set-Cookie";
 
-        public HttpResponse(HttpStatusCode statusCode)
+        public HttpResponse() { }
+
+        public HttpResponse(HttpResponseStatusCode statusCode)
         {
-            this.StatusCode = statusCode;
-            this.Headers = new HttpHeaderCollection();
-            this.Cookies = new HttpCookieCollection();
+            this.Headers = new HttpHeadersCollection();
             this.Content = new byte[0];
+            this.StatusCode = statusCode;
+            this.Cookies = new HttpCookieCollection();
         }
 
-        public HttpStatusCode StatusCode { get; set; }
+        public HttpResponseStatusCode StatusCode { get; set; }
 
-        public IHttpHeaderCollection Headers { get; private set; }
-
-        public IHttpCookieCollection Cookies { get; private set; }
+        public IHttpHeadersCollection Headers { get; private set; }
 
         public byte[] Content { get; set; }
 
-        public void AddHeader(HttpHeader header)
-        {
-            this.Headers.Add(header);
-        }
+        public IHttpCookieCollection Cookies { get; }
 
         public void AddCookie(HttpCookie cookie)
         {
             this.Cookies.Add(cookie);
         }
 
+        public void AddHeader(HttpHeader header)
+        {
+            this.Headers.Add(header);
+        }
+
         public byte[] GetBytes()
-             => Encoding.UTF8
-                .GetBytes(this.ToString())
-                .Concat(this.Content)
-                .ToArray();
-        
+        {
+            return Encoding.UTF8.GetBytes(this.ToString()).Concat(this.Content).ToArray();
+        }
 
         public override string ToString()
         {
             var result = new StringBuilder();
 
-            result.AppendLine($"{GlobalConstants.HttpOneProtocolFrame} {this.StatusCode.GetResponseLine()}")
+            result.AppendLine($"{GlobalConstants.HttpOneProtocolFragment} {this.StatusCode.GetResponseLine()}")
                 .AppendLine($"{this.Headers}");
 
             if (this.Cookies.HasCookies())
             {
-                foreach (var httpCookie in this.Cookies)
-                {
-                    result.AppendLine($"{GlobalConstants.CookieResponseHeaderName}: {this.Cookies}");
-                }
+                result.AppendLine($"{Cookie_Response_Header}: {this.Cookies}");
             }
 
             result.AppendLine();

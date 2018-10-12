@@ -10,6 +10,6 @@ namespace SIS.Http.Cookies.Contracts
 
         HttpCookie GetCookie(string key);
 
-        bool HasCookies();        
+        bool HasCookies();
     }
 }

@@ -1,0 +1,22 @@
+﻿
+<h1>IRunes</h1>
+<ul>  
+    <li><a href="/Albums/All">Albums</a></li>
+    <li><a href="/Users/Logout">Logout</a></li>
+</ul>
+<hr />
+<img src="{{albumCover}}" alt="Album Cover img" width="100" height="100" />
+<h3>Name: {{albumName}}</h3>
+<h3>Price: ${{price}}</h3>
+<br />
+<br />
+<h3>Tracks</h3>
+<hr />
+<a href="/Tracks/Create?albumId={{albumId}}">Create Track</a>
+<hr />
+<ol>
+    {{trackList}}
+</ol>
+<hr />
+<a href="/Albums/All">Back To All</a>
+<hr />
