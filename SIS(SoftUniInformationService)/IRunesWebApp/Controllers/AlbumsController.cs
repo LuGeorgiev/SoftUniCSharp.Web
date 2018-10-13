@@ -29,7 +29,7 @@ namespace IRunesWebApp.Controllers
             {
                 foreach (var album in albums)
                 {
-                    var albumHtml = $@"<h1><a href=""/Albums/Details?id={album.Id}"">{album.Name}</a></h1><br/>" + Environment.NewLine;
+                    var albumHtml = $@"<h1><a id=""albums"" href =""/Albums/Details?id={album.Id}"">{album.Name}</a></h1><br/>" + Environment.NewLine;
 
                     listOfAlbums += albumHtml;
                 }

@@ -1,10 +1,53 @@
-﻿
-<h1>Create Album</h1>
-<hr />
+﻿<nav class="navbar navbar-expand-lg navbar-light">
+    <a class="navbar-brand" href="#">IRunes</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupport">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupport">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item ">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/Albums/All">Albums</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/Users/Logout">Logout</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<div class="top-border-line">
+</div>
+
+
+<div class="text-md-center text-success col-md-6 offset-3">
+    <h1>Create Album</h1>
+    <div class="bottom-border-line">
+    </div>
+</div>
+
 <form method="post" action="/Albums/Create">
-    <p>Name <input type="text" name="albumName" placeholder="Album name" /></p>
-    <p>Cover <input type="text" name="albumCover" placeholder="Cover URL" /></p>
-    <p><input type="submit" value="Create" /></p>
+    <div class="container-fluid col-md-6 offset-3 ">
+        <div class="form-row">
+            <div class="form-group col-12">
+                <label for="albumName">Name</label>
+                <input type="text" class="form-control" name="albumName" id="albumName" placeholder="Name.." />
+            </div>
+            <div class="form-group col-12">
+                <label for="albumCover">Cover</label>
+                <input type="text" class="form-control" name="albumCover" id="albumCover" placeholder="Cover.." />
+            </div>
+        </div>
+        <div class="bottom-border-line">
+        </div>
+        <div class="form-row text-center">
+            <div class="col-2 offset-2">
+                <button class="btn btn-success " type="submit" value="login">Create</button>
+            </div>
+            <div class="col-2 offset-4">
+                <a href="/Albums/All" class="btn btn-success" role="button">Back To All</a>
+            </div>
+        </div>
+    </div>
 </form>
-<hr />
-<a href="/Albums/All">Back To All</a>
