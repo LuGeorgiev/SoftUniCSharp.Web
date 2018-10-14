@@ -1,12 +1,54 @@
-﻿
-<h1>Create Track</h1>
-<hr />
+﻿<nav class="navbar navbar-expand-lg navbar-light">
+    <a class="navbar-brand" href="#">IRunes</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupport">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupport">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item ">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/Albums/All">Albums</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/Users/Logout">Logout</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<div class="top-border-line">
+</div>
+<div class="text-md-center text-success col-md-6 offset-3">
+    <h1>Create Track</h1>
+    <div class="bottom-border-line">
+    </div>
+</div>
 <form method="post" action="/Tracks/Create?albumId={{albumId}}">
-    <p>Name <input type="text" name="trackName" placeholder="Track Name" /></p>
-    <p>Link <input type="text" name="trackLink" placeholder="URL" /></p>
-    <p>Price <input type="number" step="any" name="trackPrice" placeholder="Track Price" /></p>
-    <p><input type="submit" value="Create" /></p>
+    <div class="container-fluid col-md-6 offset-3 ">
+        <div class="form-row">
+            <div class="form-group col-12">
+                <label for="trackName">Name</label>
+                <input type="text" class="form-control" name="trackName" id="trackName" placeholder="Name.." />
+            </div>
+            <div class="form-group col-12">
+                <label for="trackLink">Link</label>
+                <input type="text" class="form-control" name="trackLink" id="trackLink" placeholder="Link.." />
+            </div>
+            <div class="form-group col-12">
+                <label for="trackPrice">Price</label>
+                <input type="number" step="any" class="form-control" name="trackPrice" id="trackPrice" placeholder="Price.." />
+            </div>
+        </div>
+        <div class="bottom-border-line">
+        </div>
+        <div class="form-row text-center">
+            <div class="col-2 offset-2">
+                <button class="btn btn-success " type="submit" value="Creat">Create</button>
+            </div>
+            <div class="col-2 offset-4">
+                <a href="/Albums/Details?id={{albumId}}" class="btn btn-success" role="button">Back To Album</a>
+            </div>
+        </div>
+    </div>
 </form>
-<hr />
-<a href="/Albums/Details?id={{albumId}}">Back To Album</a>
-<hr />

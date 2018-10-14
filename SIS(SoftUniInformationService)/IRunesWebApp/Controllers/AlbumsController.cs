@@ -118,7 +118,7 @@ namespace IRunesWebApp.Controllers
                 foreach (var track in album.Tracks)
                 {
                     var trackId = track.Track.Id;
-                    var trackHtml = $@"<li><a href=""/Tracks/Details?albumId={albumId}&trackId={trackId}"">{track.Track.Name}</a></li><br/>" + Environment.NewLine;
+                    var trackHtml = $@"<li><a class=""text-primary"" href =""/Tracks/Details?albumId={albumId}&trackId={trackId}"">{track.Track.Name}</a></li><br/>" + Environment.NewLine;
 
                     listOfTracks += trackHtml;
 

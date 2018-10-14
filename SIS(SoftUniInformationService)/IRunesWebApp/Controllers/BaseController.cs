@@ -78,17 +78,20 @@
             string viewContent = BuildViewContent(filePath);
 
             var layoutContent = File.ReadAllText(layoutViewPath);
-            var view = layoutContent.Replace("@RenderBody()", viewContent);
-            
-            //foreach (var viewBagKey in ViewBag.Keys)
-            //{
-            //    var dynamicDataPlaceholder = $"{{{{{viewBagKey}}}}}";
 
-            //    if (view.Contains(dynamicDataPlaceholder))
-            //    {
-            //        view = view.Replace(dynamicDataPlaceholder, ViewBag[viewBagKey]);
-            //    }
+            //TODO navigation to be re-worked
+            //var layoutNavigation = "";
+            //if (this.ViewBag.ContainsKey("username"))
+            //{
+            //    layoutNavigation = File.ReadAllText("../../../Views/Navigation/Logged.html");
             //}
+            //else
+            //{
+            //    layoutNavigation = File.ReadAllText("../../../Views/Navigation/NotLogged.html");
+
+            //}
+            var view = layoutContent.Replace("@RenderBody()", viewContent);
+            //view = view.Replace("@RenderNavigation()", layoutNavigation);            
 
             var response = new HtmlResult(view, HttpResponseStatusCode.Ok);
             return response;

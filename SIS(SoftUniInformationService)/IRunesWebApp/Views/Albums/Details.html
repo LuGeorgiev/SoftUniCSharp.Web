@@ -1,22 +1,48 @@
 ﻿
-<h1>IRunes</h1>
-<ul>  
-    <li><a href="/Albums/All">Albums</a></li>
-    <li><a href="/Users/Logout">Logout</a></li>
-</ul>
-<hr />
-<img src="{{albumCover}}" alt="Album Cover img" width="100" height="100" />
-<h3>Name: {{albumName}}</h3>
-<h3>Price: ${{price}}</h3>
-<br />
-<br />
-<h3>Tracks</h3>
-<hr />
-<a href="/Tracks/Create?albumId={{albumId}}">Create Track</a>
-<hr />
-<ol>
-    {{trackList}}
-</ol>
-<hr />
-<a href="/Albums/All">Back To All</a>
-<hr />
+<nav class="navbar navbar-expand-lg navbar-light">
+    <a class="navbar-brand" href="#">IRunes</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupport">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupport">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item ">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/Albums/All">Albums</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/Users/Logout">Logout</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<div class="top-border-line">
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div>
+            <img class="img-thumbnail" src="{{albumCover}}" alt="Album Cover" />
+        </div>
+        <div class="text-center">
+            <h4 class="card-title">Album Name: {{albumName}}</h4>
+            <h4 class="card-text">Price: ${{price}}</h4>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                <a class="btn btn-success" href="/Tracks/Create?albumId={{albumId}}">Create Track</a>
+            </div>
+            <div class="col-md-2 offset-6">
+                <a class="btn btn-success" href="/Albums/All">Back To All</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <h3>Tracks</h3>
+        <ol class="text-primary">
+            {{trackList}}
+        </ol>
+    </div>
+</div>
