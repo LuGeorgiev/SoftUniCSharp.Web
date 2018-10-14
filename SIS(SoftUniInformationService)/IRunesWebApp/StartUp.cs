@@ -1,48 +1,40 @@
-﻿
+﻿using IRunesWebApp.Controllers;
+using SIS.Http.Enums;
+using SIS.MvcFramework;
+using SIS.WebServer.Routing;
+
 namespace IRunesWebApp
 {
-    using IRunesWebApp.Controllers;
-    using SIS.Http.Enums;
-    using SIS.WebServer;
-    using SIS.WebServer.Results;
-    using SIS.WebServer.Routing;
-
-    class StartUp
+    public class StartUp : IMvcApplication
     {
-        static void Main(string[] args)
+        public void Configure()
         {
-            ServerRoutingTable serverRoutingTable = new ServerRoutingTable();
+        //    //GET    
+        //    rounting.Routes[HttpRequestMethod.GET]["/Home/Index"] = request => new HomeController() { Request = request }.Index();
+        //    rounting.Routes[HttpRequestMethod.GET]["/"] = request => new HomeController() { Request = request }.Index();
 
-            ConfigureRouting(serverRoutingTable);           
-           
-            Server server = new Server(8000, serverRoutingTable);
+        //    rounting.Routes[HttpRequestMethod.GET]["/Users/Login"] = request => new UsersController() { Request = request }.Login();
+        //    rounting.Routes[HttpRequestMethod.GET]["/Users/Register"] = request => new UsersController() { Request = request }.Register();
+        //    rounting.Routes[HttpRequestMethod.GET]["/Users/Logout"] = request => new UsersController() { Request = request }.Logout();
 
-            server.Run();
+        //    rounting.Routes[HttpRequestMethod.GET]["/Albums/All"] = request => new AlbumsController() { Request = request }.All();
+        //    rounting.Routes[HttpRequestMethod.GET]["/Albums/Create"] = request => new AlbumsController() { Request = request }.Create();
+        //    rounting.Routes[HttpRequestMethod.GET]["/Albums/Details"] = request => new AlbumsController() { Request = request }.Details();
+
+        //    rounting.Routes[HttpRequestMethod.GET]["/Tracks/Create"] = request => new TracksController() { Request = request }.Create();
+        //    rounting.Routes[HttpRequestMethod.GET]["/Tracks/Details"] = request => new TracksController() { Request = request }.Details();
+
+
+        //    //POST
+        //    rounting.Routes[HttpRequestMethod.POST]["/Users/Login"] = request => new UsersController() { Request = request }.LoginPost();
+        //    rounting.Routes[HttpRequestMethod.POST]["/Users/Register"] = request => new UsersController() { Request = request }.RegisterPost();
+        //    rounting.Routes[HttpRequestMethod.POST]["/Albums/Create"] = request => new AlbumsController() { Request = request }.CreatePost();
+        //    rounting.Routes[HttpRequestMethod.POST]["/Tracks/Create"] = request => new TracksController() { Request = request }.CreatePost();
         }
 
-        private static void ConfigureRouting(ServerRoutingTable serverRoutingTable)
+        public void ConfigureServices()
         {
-            //GET        
-            serverRoutingTable.Routes[HttpRequestMethod.GET]["/Home/Index"] = request => new RedirectResult("/");
-            serverRoutingTable.Routes[HttpRequestMethod.GET]["/"] = request => new HomeController().Index(request);
-
-            serverRoutingTable.Routes[HttpRequestMethod.GET]["/Users/Login"] = request => new UsersController().Login(request);
-            serverRoutingTable.Routes[HttpRequestMethod.GET]["/Users/Register"] = request => new UsersController().Register(request);
-            serverRoutingTable.Routes[HttpRequestMethod.GET]["/Users/Logout"] = request => new UsersController().Logout(request);
-
-            serverRoutingTable.Routes[HttpRequestMethod.GET]["/Albums/All"] = request => new AlbumsController().All(request);
-            serverRoutingTable.Routes[HttpRequestMethod.GET]["/Albums/Create"] = request => new AlbumsController().Create(request);
-            serverRoutingTable.Routes[HttpRequestMethod.GET]["/Albums/Details"] = request => new AlbumsController().Details(request);
-
-            serverRoutingTable.Routes[HttpRequestMethod.GET]["/Tracks/Create"] = request => new TracksController().Create(request);
-            serverRoutingTable.Routes[HttpRequestMethod.GET]["/Tracks/Details"] = request => new TracksController().Details(request);
-
-
-            //POST
-            serverRoutingTable.Routes[HttpRequestMethod.POST]["/Users/Login"] = request => new UsersController().LoginPost(request);
-            serverRoutingTable.Routes[HttpRequestMethod.POST]["/Users/Register"] = request => new UsersController().RegisterPost(request);
-            serverRoutingTable.Routes[HttpRequestMethod.POST]["/Albums/Create"] = request => new AlbumsController().CreatePost(request);
-            serverRoutingTable.Routes[HttpRequestMethod.POST]["/Tracks/Create"] = request => new TracksController().CreatePost(request);
+            throw new System.NotImplementedException();
         }
     }
 }

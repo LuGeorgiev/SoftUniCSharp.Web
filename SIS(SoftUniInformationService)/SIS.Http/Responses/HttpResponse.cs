@@ -17,14 +17,17 @@
     {
         private const string Cookie_Response_Header = "Set-Cookie";
 
-        public HttpResponse() { }
-
-        public HttpResponse(HttpResponseStatusCode statusCode)
+        public HttpResponse()
         {
             this.Headers = new HttpHeadersCollection();
             this.Content = new byte[0];
-            this.StatusCode = statusCode;
             this.Cookies = new HttpCookieCollection();
+        }
+
+        public HttpResponse(HttpResponseStatusCode statusCode)
+            :this()
+        {            
+            this.StatusCode = statusCode;
         }
 
         public HttpResponseStatusCode StatusCode { get; set; }

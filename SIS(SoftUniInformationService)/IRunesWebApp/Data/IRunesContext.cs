@@ -6,6 +6,14 @@ namespace IRunesWebApp.Data
 
     public class IRunesContext : DbContext
     {
+        public IRunesContext()
+        {
+        }
+        public IRunesContext(DbContextOptions options)
+            : base(options)
+        {
+        }
+
         public DbSet<User> Users { get; set; }
 
         public DbSet<Album> Albums{ get; set; }

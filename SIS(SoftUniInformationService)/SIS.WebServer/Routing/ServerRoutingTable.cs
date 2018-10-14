@@ -20,5 +20,10 @@
         }
 
         public Dictionary<HttpRequestMethod,Dictionary<string, Func<IHttpRequest, IHttpResponse>>> Routes { get; }
+
+        public void  Add(HttpRequestMethod method, string path, Func<IHttpRequest, IHttpResponse> func)
+        {
+            this.Routes[method].Add(path, func);
+        }
     }
 }

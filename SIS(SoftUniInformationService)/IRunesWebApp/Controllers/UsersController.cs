@@ -6,6 +6,7 @@ using SIS.Http.Cookies;
 using SIS.Http.Enums;
 using SIS.Http.Requests.Contracts;
 using SIS.Http.Responses.Contracts;
+using SIS.MvcFramework.Routing;
 using SIS.WebServer.Results;
 using System;
 using System.Linq;
@@ -22,12 +23,14 @@ namespace IRunesWebApp.Controllers
             this.hashService = new HashService();
         }
 
-        public IHttpResponse Login(IHttpRequest request) => this.View();
+        [HttpGet("/Users/Login")]
+        public IHttpResponse Login() => this.View();
 
-        public IHttpResponse LoginPost(IHttpRequest request)
+        [HttpPost("/Users/Login")]
+        public IHttpResponse LoginPost()
         {
-            var username = request.FormData["username"].ToString();
-            var password = request.FormData["password"].ToString();
+            var username = this.Request.FormData["username"].ToString();
+            var password = this.Request.FormData["password"].ToString();
 
             var hashedPassword = this.hashService.Hash(password);
 
@@ -35,23 +38,25 @@ namespace IRunesWebApp.Controllers
 
             if (user == null)
             {
-                return new RedirectResult("/Users/Login");
+                return this.Redirect("/Users/Login");
             }
 
-            var response = new RedirectResult("/Home/Index");
+            var response =this.Redirect("/Home/Index");
 
-            this.SignInUser(username, response, request);
+            this.SignInUser(username);
 
             return response;
         }
 
-        public IHttpResponse Register(IHttpRequest request) => this.View();
+        [HttpGet("/Users/Register")]
+        public IHttpResponse Register() => this.View();
 
-        public IHttpResponse RegisterPost(IHttpRequest request)
+        [HttpPost("/Users/Register")]
+        public IHttpResponse RegisterPost()
         {
-            var userName = request.FormData["username"].ToString().Trim();
-            var password = request.FormData["password"].ToString();
-            var confirmPassword = request.FormData["confirmPassword"].ToString();
+            var userName = this.Request.FormData["username"].ToString().Trim();
+            var password = this.Request.FormData["password"].ToString();
+            var confirmPassword = this.Request.FormData["confirmPassword"].ToString();
 
             if (this.Context.Users.Any(x => x.Username == userName))
             {
@@ -60,7 +65,7 @@ namespace IRunesWebApp.Controllers
 
             if (password != confirmPassword)
             {
-                return new RedirectResult("/Users/Register");
+                return this.Redirect("/Users/Register");
             }
      
             var hashedPassword = this.hashService.Hash(password);
@@ -81,18 +86,26 @@ namespace IRunesWebApp.Controllers
                 return new BadRequestResult(e.Message, HttpResponseStatusCode.InternalServerError);
             }
 
-            var response = new RedirectResult("/");
-
-            this.SignInUser(userName, response, request);
-
+            var response = this.Redirect("/");
+            this.SignInUser(userName);
             return response;
         }
 
-        public IHttpResponse Logout(IHttpRequest request)
+        [HttpGet("/Users/Logout")]
+        public IHttpResponse Logout()
         {
-            request.Session.ClearParameters();
+            if (!this.Request.Cookies.ContainsCookie("Irunes_auth"))
+            {
+                return this.Redirect("/");
+            }
+            //TODO
+            var cookie = this.Request.Cookies.GetCookie("Irunes_auth");
+            cookie.Delete();
+            this.Response.Cookies.Add(cookie);
 
-            return new RedirectResult("/");
+            //this.Request.Session.ClearParameters();
+
+            return this.Redirect("/");
         }
     }
 }

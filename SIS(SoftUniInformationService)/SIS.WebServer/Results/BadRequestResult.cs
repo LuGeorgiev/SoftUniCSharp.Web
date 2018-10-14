@@ -18,5 +18,11 @@
             this.Headers.Add(new HttpHeader("Content-Type", "text/html"));
             this.Content = Encoding.UTF8.GetBytes(content);
         }
+
+        //TODO
+        //Can be substituted by in code:
+        //this.PrepareHtmlResult(content)
+        //this.Response.StstusCode = httpResponsestatust.BadReq
+        //return Response
     }
 }

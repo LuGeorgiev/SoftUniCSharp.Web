@@ -8,6 +8,7 @@ namespace SIS.Http.Enums
     {
         Ok = 200,
         Created = 201,
+        PermanentRedirect =301, 
         Found = 302,
         SeeOther = 303,
         BadRequest = 400,

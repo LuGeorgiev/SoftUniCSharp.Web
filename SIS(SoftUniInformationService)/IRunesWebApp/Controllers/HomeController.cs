@@ -6,14 +6,16 @@
     using SIS.WebServer.Results;
     using System.Net;
     using System.Collections.Generic;
+    using SIS.MvcFramework.Routing;
 
     public class HomeController : BaseController
     {
-        public IHttpResponse Index(IHttpRequest request)
+        [HttpGet("/Home/Index")]
+        public IHttpResponse Index()
         {
-            if (this.IsAuthenticated(request))
+            if (this.IsAuthenticated(this.Request))
             {
-                var username = request.Session.GetParameter("username");
+                var username = this.Request.Session.GetParameter("username");
                 this.ViewBag["username"] = username.ToString();
 
                 return this.View("IndexLoggedIn");

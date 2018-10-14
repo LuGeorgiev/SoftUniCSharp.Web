@@ -8,24 +8,26 @@ using SIS.Http.Requests.Contracts;
 using SIS.Http.Responses.Contracts;
 using SIS.WebServer.Results;
 using IRunesWebApp.Models;
+using SIS.MvcFramework.Routing;
 
 namespace IRunesWebApp.Controllers
 {
     public class TracksController : BaseController
     {
-        public IHttpResponse Create(IHttpRequest request)
+        [HttpGet("/Tracks/Create")]
+        public IHttpResponse Create()
         {
-            if (!this.IsAuthenticated(request))
+            if (!this.IsAuthenticated(this.Request))
             {
-                return new RedirectResult("/Users/Login");
+                return this.Redirect("/Users/Login");
             }
 
-            if (!request.QueryData.ContainsKey("albumId"))
+            if (!this.Request.QueryData.ContainsKey("albumId"))
             {
                 return new BadRequestResult("Must provide a proper album id in query!", HttpResponseStatusCode.BadRequest);
             }
 
-            var albumId = request.QueryData["albumId"].ToString();
+            var albumId = this.Request.QueryData["albumId"].ToString();
             var album = this.Context.Albums.FirstOrDefault(x => x.Id == albumId);
 
             if (album == null)
@@ -38,18 +40,19 @@ namespace IRunesWebApp.Controllers
             return this.View();
         }
 
-        public IHttpResponse CreatePost(IHttpRequest request)
+        [HttpPost("/Tracks/Create")]
+        public IHttpResponse CreatePost()
         {
-            var trackName = HttpUtility.UrlDecode(request.FormData["trackName"].ToString());
-            var trackLink = HttpUtility.UrlDecode(request.FormData["trackLink"].ToString());
-            var trackPrice = decimal.Parse(request.FormData["trackPrice"].ToString());
+            var trackName = HttpUtility.UrlDecode(this.Request.FormData["trackName"].ToString());
+            var trackLink = HttpUtility.UrlDecode(this.Request.FormData["trackLink"].ToString());
+            var trackPrice = decimal.Parse(this.Request.FormData["trackPrice"].ToString());
 
-            if (!request.QueryData.ContainsKey("albumId"))
+            if (!this.Request.QueryData.ContainsKey("albumId"))
             {
                 return new BadRequestResult("Must provide a proper album id in query!", HttpResponseStatusCode.BadRequest);
             }
 
-            var albumId = request.QueryData["albumId"].ToString();
+            var albumId = this.Request.QueryData["albumId"].ToString();
             var album = this.Context.Albums.FirstOrDefault(x => x.Id == albumId);
 
             if (album == null)
@@ -82,28 +85,29 @@ namespace IRunesWebApp.Controllers
                 return new BadRequestResult(e.Message, HttpResponseStatusCode.InternalServerError);
             }
 
-            return new RedirectResult($"/Albums/Details?id={albumId}");
+            return this.Redirect($"/Albums/Details?id={albumId}");
         }
 
-        public IHttpResponse Details(IHttpRequest request)
+        [HttpGet("/Tracks/Details")]
+        public IHttpResponse Details()
         {
-            if (!this.IsAuthenticated(request))
+            if (!this.IsAuthenticated(this.Request))
             {
-                return new RedirectResult("/Users/Login");
+                return this.Redirect("/Users/Login");
             }
 
-            if (!request.QueryData.ContainsKey("albumId"))
+            if (!this.Request.QueryData.ContainsKey("albumId"))
             {
                 return new BadRequestResult("Must provide a proper album id in query!", HttpResponseStatusCode.BadRequest);
             }
 
-            if (!request.QueryData.ContainsKey("trackId"))
+            if (!this.Request.QueryData.ContainsKey("trackId"))
             {
                 return new BadRequestResult("Must provide a proper track id in query!", HttpResponseStatusCode.BadRequest);
             }
 
-            var albumId = request.QueryData["albumId"].ToString();
-            var trackId = request.QueryData["trackId"].ToString();
+            var albumId = this.Request.QueryData["albumId"].ToString();
+            var trackId = this.Request.QueryData["trackId"].ToString();
 
             var album = this.Context.Albums.FirstOrDefault(x => x.Id == albumId);
             var track = this.Context.Tracks.FirstOrDefault(x => x.Id == trackId);

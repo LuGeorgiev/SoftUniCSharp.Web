@@ -3,6 +3,7 @@ using IRunesWebApp.Models;
 using SIS.Http.Enums;
 using SIS.Http.Requests.Contracts;
 using SIS.Http.Responses.Contracts;
+using SIS.MvcFramework.Routing;
 using SIS.WebServer.Results;
 using System;
 using System.Collections.Generic;
@@ -14,11 +15,12 @@ namespace IRunesWebApp.Controllers
 {
     public class AlbumsController: BaseController
     {
-        public IHttpResponse All(IHttpRequest request)
+        [HttpGet("/Albums/All")]
+        public IHttpResponse All()
         {
-            if (!this.IsAuthenticated(request))
+            if (!this.IsAuthenticated(this.Request))
             {
-                return new RedirectResult("/Users/Login");
+                return this.Redirect("/Users/Login");
             }
 
             var albums = this.Context.Albums;
@@ -44,20 +46,22 @@ namespace IRunesWebApp.Controllers
             return this.View();
         }
 
-        public IHttpResponse Create(IHttpRequest request)
+        [HttpGet("/Albums/Create")]
+        public IHttpResponse Create()
         {
-            if (!this.IsAuthenticated(request))
+            if (!this.IsAuthenticated(this.Request))
             {
-                return new RedirectResult("/Users/Login");
+                return this.Redirect("/Users/Login");
             }
 
             return this.View();
         }
 
-        public IHttpResponse CreatePost(IHttpRequest request)
+        [HttpPost("/Albums/Create")]
+        public IHttpResponse CreatePost()
         {
-            var albumName = HttpUtility.UrlDecode(request.FormData["albumName"].ToString());
-            var albumCover = HttpUtility.UrlDecode(request.FormData["albumCover"].ToString());
+            var albumName = HttpUtility.UrlDecode(this.Request.FormData["albumName"].ToString());
+            var albumCover = HttpUtility.UrlDecode(this.Request.FormData["albumCover"].ToString());
 
             if (this.Context.Albums.Any(x => x.Name == albumName))
             {
@@ -81,22 +85,23 @@ namespace IRunesWebApp.Controllers
                 return new BadRequestResult(e.Message, HttpResponseStatusCode.InternalServerError);
             }
 
-            return new RedirectResult("/Albums/All");
+            return this.Redirect("/Albums/All");
         }
 
-        public IHttpResponse Details(IHttpRequest request)
+        [HttpGet("/Albums/Details")]
+        public IHttpResponse Details()
         {
-            if (!this.IsAuthenticated(request))
+            if (!this.IsAuthenticated(this.Request))
             {
-                return new RedirectResult("/Users/Login");
+                return this.Redirect("/Users/Login");
             }
 
-            if (!request.QueryData.ContainsKey("id"))
+            if (!this.Request.QueryData.ContainsKey("id"))
             {
                 return new BadRequestResult("Must provide a proper album id in query!", HttpResponseStatusCode.BadRequest);
             }
 
-            var albumId = request.QueryData["id"].ToString();
+            var albumId = this.Request.QueryData["id"].ToString();
 
             var album = this.Context.Albums.FirstOrDefault(x => x.Id == albumId);
 

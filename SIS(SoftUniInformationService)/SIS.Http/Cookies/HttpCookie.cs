@@ -25,10 +25,15 @@ namespace SIS.Http.Cookies
 
         public string Value { get; }
 
-        public DateTime Expires { get; }
+        public DateTime Expires { get; private set; }
 
         public bool IsNew { get; }
 
         public override string ToString() => $"{this.Key}={this.Value}; Expires={this.Expires.ToLongTimeString()}";
+
+        public void Delete()
+        {
+            this.Expires = DateTime.UtcNow.AddDays(-1);
+        }
     }
 }
