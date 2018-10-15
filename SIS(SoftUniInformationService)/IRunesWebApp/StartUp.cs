@@ -2,20 +2,26 @@
 namespace IRunesWebApp
 {
     using IRunesWebApp.Controllers;
+    using SIS.Framework;
+    using SIS.Framework.Routes;
     using SIS.Http.Enums;
     using SIS.WebServer;
+    using SIS.WebServer.Api;
     using SIS.WebServer.Results;
     using SIS.WebServer.Routing;
+    using System.Reflection;
 
     class StartUp
     {
         static void Main(string[] args)
         {
             ServerRoutingTable serverRoutingTable = new ServerRoutingTable();
+            IHttpHandler handler = new ControllerRouter();
+            MvcContext.Get.AssemblyName = Assembly.GetExecutingAssembly().GetName().Name;
 
             ConfigureRouting(serverRoutingTable);           
            
-            Server server = new Server(8000, serverRoutingTable);
+            Server server = new Server(8000, handler);
 
             server.Run();
         }

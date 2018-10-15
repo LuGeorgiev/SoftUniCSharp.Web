@@ -14,8 +14,9 @@
     using System;
     using IRunesWebApp.Extensions;
     using SIS.Http.Enums;
+    using SIS.Framework.Controllers;
 
-    public abstract class BaseController
+    public abstract class BaseController:Controller
     {
         private const string RootDirectoryRelativePath = "../../../";
         private const string ViewFolderName = "Views";

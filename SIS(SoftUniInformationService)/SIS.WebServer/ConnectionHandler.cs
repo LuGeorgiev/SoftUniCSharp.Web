@@ -2,9 +2,7 @@
 {
     using Http.Requests;
     using Http.Requests.Contracts;
-    using Http.Responses;
     using Http.Responses.Contracts;
-    using Routing;
     using SIS.Http.Cookies;
     using SIS.Http.Session;
     using System;
@@ -12,25 +10,19 @@
     using System.Net.Sockets;
     using System.Text;
     using System.Threading.Tasks;
-    using Http.Common;
-    using System.Linq;
-    using System.Reflection;
-    using SIS.WebServer.Results;
-    using System.IO;
-    using SIS.Http.Exceptions;
-    using SIS.Http.Enums;
+    using SIS.WebServer.Api;
 
     public class ConnectionHandler
     {
         private readonly Socket client;
-        private readonly ServerRoutingTable serverRoutingTable;
+        private readonly IHttpHandler handler;
 
-        private const string RootDirectory = "../../../";
+        //private const string RootDirectory = "../../../";
 
-        public ConnectionHandler(Socket client, ServerRoutingTable serverRoutingTable)
+        public ConnectionHandler(Socket client, IHttpHandler handler)
         {
             this.client = client;
-            this.serverRoutingTable = serverRoutingTable;
+            this.handler = handler;
         }
 
         private async Task<IHttpRequest> ReadRequest()
@@ -61,62 +53,8 @@
             }
 
             return new HttpRequest(result.ToString());
-        }       
-
-        private IHttpResponse HandleRequest(IHttpRequest httpRequest)
-        {
-            if (IsResourceRequest(httpRequest))
-            {
-                return this.HandleRequestResponse(httpRequest.Path);
-            }
-           
-            if (!this.serverRoutingTable.Routes.ContainsKey(httpRequest.RequestMethod)
-            || !this.serverRoutingTable.Routes[httpRequest.RequestMethod].ContainsKey(httpRequest.Path))
-            {
-                return new HttpResponse(HttpResponseStatusCode.NotFound);
-            }
-                      
-
-            return this.serverRoutingTable.Routes[httpRequest.RequestMethod][httpRequest.Path].Invoke(httpRequest);
-        }
-
-        private IHttpResponse HandleRequestResponse(string path)
-        {
-            var indexOfStartOfExtension = path.LastIndexOf('.');
-            var indexOfStartOfNameOfResource = path.LastIndexOf('/');
-            var pathExtension = path.Substring(path.LastIndexOf('.'));
-
-            var resourceName = path.Substring(indexOfStartOfNameOfResource);
-
-            var resourcePath = RootDirectory
-                + "Resources"
-                + $"/{pathExtension.Substring(1)}"  // to skip the . and extarct css
-                + resourceName;
-
-            if (!File.Exists(resourcePath))
-            {
-                return new HttpResponse(HttpResponseStatusCode.NotFound);
-            }
-
-            var fileContent = File.ReadAllBytes(resourcePath);
-
-            return new InlineResourceResult(fileContent, HttpResponseStatusCode.Ok);
-        }
-
-        private bool IsResourceRequest(IHttpRequest httpRequest)
-        {
-            var requestPath = httpRequest.Path;
-            if (requestPath.Contains("."))
-            {
-                var pathExtension = requestPath.Substring(requestPath.LastIndexOf('.'));
-                bool isValid= GlobalConstants.ResourceExtensions.Contains(pathExtension);
-
-                return isValid;
-            }
-            //httpRequest.Path -> .js, .css -> Resource/css/?! -> bootestrap.min
-            return false;
-        }
-
+        }           
+       
         private string SetRequestSession(IHttpRequest request)
         {
             string sessionId = null;
@@ -159,7 +97,7 @@
             {
                 string sessionId = this.SetRequestSession(httpRequest);
 
-                var httpResponse = this.HandleRequest(httpRequest);
+                var httpResponse = this.handler.Handle(httpRequest);
 
                 this.SetResponseSession(httpResponse, sessionId);
 
