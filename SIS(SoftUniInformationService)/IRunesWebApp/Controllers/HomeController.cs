@@ -10,7 +10,8 @@
 
     public class HomeController : BaseController
     {
-        [HttpGet("/Home/Index")]
+        //[HttpGet("/Home/Index")]
+        [HttpGet("/")]
         public IHttpResponse Index()
         {
             if (this.IsAuthenticated(this.Request))

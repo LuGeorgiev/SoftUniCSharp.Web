@@ -9,6 +9,8 @@ using SIS.Http.Responses.Contracts;
 using SIS.WebServer.Results;
 using IRunesWebApp.Models;
 using SIS.MvcFramework.Routing;
+using IRunesWebApp.ViewModels.Tracks;
+using SIS.MvcFramework.Extensions;
 
 namespace IRunesWebApp.Controllers
 {
@@ -41,12 +43,9 @@ namespace IRunesWebApp.Controllers
         }
 
         [HttpPost("/Tracks/Create")]
-        public IHttpResponse CreatePost()
+        public IHttpResponse CreatePost(CreatePostTrackModel model)
         {
-            var trackName = HttpUtility.UrlDecode(this.Request.FormData["trackName"].ToString());
-            var trackLink = HttpUtility.UrlDecode(this.Request.FormData["trackLink"].ToString());
-            var trackPrice = decimal.Parse(this.Request.FormData["trackPrice"].ToString());
-
+            
             if (!this.Request.QueryData.ContainsKey("albumId"))
             {
                 return new BadRequestResult("Must provide a proper album id in query!", HttpResponseStatusCode.BadRequest);
@@ -60,7 +59,7 @@ namespace IRunesWebApp.Controllers
                 return new BadRequestResult($"Album with id {albumId} does not exist!", HttpResponseStatusCode.NotFound);
             }
 
-            if (album.Tracks.Any(x => x.Track.Name == trackName))
+            if (album.Tracks.Any(x => x.Track.Name == model.TrackName))
             {
                 return new BadRequestResult("Track with the same name already exists.", HttpResponseStatusCode.BadRequest);
             }
@@ -68,9 +67,9 @@ namespace IRunesWebApp.Controllers
             // Create track
             var track = new Track
             {
-                Name = trackName,
-                Link = trackLink,
-                Price = trackPrice
+                Name = model.TrackName,
+                Link = model.TrackLink,
+                Price = model.TrackPrice
             };
             this.Context.Tracks.Add(track);
 

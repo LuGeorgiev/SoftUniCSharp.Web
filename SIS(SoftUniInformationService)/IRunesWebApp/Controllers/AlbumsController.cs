@@ -1,5 +1,6 @@
 ﻿using IRunesWebApp.Extensions;
 using IRunesWebApp.Models;
+using IRunesWebApp.ViewModels.Albums;
 using SIS.Http.Enums;
 using SIS.Http.Requests.Contracts;
 using SIS.Http.Responses.Contracts;
@@ -58,12 +59,9 @@ namespace IRunesWebApp.Controllers
         }
 
         [HttpPost("/Albums/Create")]
-        public IHttpResponse CreatePost()
+        public IHttpResponse CreatePost(CreatePostAlbumModel model)
         {
-            var albumName = HttpUtility.UrlDecode(this.Request.FormData["albumName"].ToString());
-            var albumCover = HttpUtility.UrlDecode(this.Request.FormData["albumCover"].ToString());
-
-            if (this.Context.Albums.Any(x => x.Name == albumName))
+            if (this.Context.Albums.Any(x => x.Name == model.AlbumName))
             {
                 return new BadRequestResult("Album with the same name already exists.", HttpResponseStatusCode.BadRequest);
             }
@@ -71,8 +69,8 @@ namespace IRunesWebApp.Controllers
             // Create album
             var album = new Album
             {
-                Name = albumName,
-                Cover = albumCover
+                Name = model.AlbumName,
+                Cover = model.AlbumCover
             };
             this.Context.Albums.Add(album);
 

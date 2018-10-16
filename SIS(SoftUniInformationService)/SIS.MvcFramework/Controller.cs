@@ -23,17 +23,17 @@ namespace SIS.MvcFramework
         private const string LayoutFimeName = "_Layout";
         private const string HtmlFileExtension = ".html";
         private const string DirectorySeparator = "/";
+                
 
-        private readonly IUserCookieService userCookieService;
-
-        public Controller()
+        protected Controller()
         {
-            this.userCookieService = new UserCookieService();
             this.ViewBag = new Dictionary<string, string>();
             this.Response = new HttpResponse();
         }
 
         protected IDictionary<string, string> ViewBag { get; set; }
+
+        public IUserCookieService UserCookieService { get; internal set; }
 
         public IHttpRequest Request { get; set; }
 
@@ -55,7 +55,7 @@ namespace SIS.MvcFramework
         protected void SignInUser(string username)
         {
             this.Request.Session.AddParameter("username", username);
-            var userCookieValue = this.userCookieService.GetUserCookieContent(username);
+            var userCookieValue = this.UserCookieService.GetUserCookieContent(username);
             this.Response.Cookies.Add(new HttpCookie("Irunes_auth", userCookieValue));
         }
 
@@ -67,7 +67,7 @@ namespace SIS.MvcFramework
             }
             var cookie = this.Request.Cookies.GetCookie("Irunes_auth");
             var cookieContent = cookie.Value;
-            var userName = this.userCookieService.GetUserDate(cookieContent);
+            var userName = this.UserCookieService.GetUserDate(cookieContent);
 
             return userName;
         }

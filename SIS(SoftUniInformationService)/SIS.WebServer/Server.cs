@@ -2,8 +2,10 @@
 {
     using Routing;
     using System;
+    using System.Globalization;
     using System.Net;
     using System.Net.Sockets;
+    using System.Threading;
     using System.Threading.Tasks;
 
     public class Server
@@ -37,6 +39,8 @@
         {
             while (this.isRunning)
             {
+                Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+
                 var client = await this.listener.AcceptSocketAsync();
                 var connectionHandler = new ConnectionHandler(client, this.serverRoutingTable);
 

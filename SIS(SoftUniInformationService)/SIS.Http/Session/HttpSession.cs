@@ -21,6 +21,8 @@
         {
             if (this.parameters.ContainsKey(name))
             {
+                return;
+                //TODO is it correct
                 throw new ArgumentException("Parameter already exists.");
             }
 

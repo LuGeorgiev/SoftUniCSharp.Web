@@ -8,6 +8,7 @@ namespace IRunesWebApp
         static void Main(string[] args)
         {
             var mvcApplication = new StartUp();
+
             WebHost.Start(mvcApplication);
             
         }       
