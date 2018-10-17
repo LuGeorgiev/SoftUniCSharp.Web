@@ -9,7 +9,7 @@ namespace SIS.Demo.Controllers
 {
     public class HomeController:Controller
     {
-        [HttpGetAttribute]
+        [HttpGet]
         public IActionResult Index()
         {
             return View();

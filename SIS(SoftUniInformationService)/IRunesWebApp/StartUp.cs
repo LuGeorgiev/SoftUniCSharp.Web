@@ -15,15 +15,15 @@ namespace IRunesWebApp
     {
         static void Main(string[] args)
         {
-            ServerRoutingTable serverRoutingTable = new ServerRoutingTable();
-            IHttpHandler handler = new ControllerRouter();
-            MvcContext.Get.AssemblyName = Assembly.GetExecutingAssembly().GetName().Name;
-
-            ConfigureRouting(serverRoutingTable);           
+            //ServerRoutingTable serverRoutingTable = new ServerRoutingTable();
+            //MvcContext.Get.AssemblyName = Assembly.GetExecutingAssembly().GetName().Name;
+            //ConfigureRouting(serverRoutingTable);           
            
+            IHttpHandler handler = new ControllerRouter();
             Server server = new Server(8000, handler);
+            MvcEngine.Run(server);
 
-            server.Run();
+            //server.Run();
         }
 
         private static void ConfigureRouting(ServerRoutingTable serverRoutingTable)
