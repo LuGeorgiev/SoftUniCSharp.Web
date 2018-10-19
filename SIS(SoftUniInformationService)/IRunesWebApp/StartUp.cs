@@ -3,6 +3,7 @@ using Services.Contracts;
 using Services.Logger;
 using Services.Logger.Contracts;
 using SIS.MvcFramework;
+using System;
 
 namespace IRunesWebApp
 {
@@ -16,7 +17,8 @@ namespace IRunesWebApp
         {
             collection.AddService<IHashService, HashService>();
             collection.AddService<IUserCookieService, UserCookieService>();
-            collection.AddService<ILogger, FileLogger>();
+            //collection.AddService<ILogger, FileLogger>();
+            collection.AddService<ILogger>(() => new FileLogger($"Log_{DateTime.Now.Date}.txt"));
         }
     }
 }

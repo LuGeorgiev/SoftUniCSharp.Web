@@ -10,9 +10,9 @@
 
         private readonly string _fileName;
 
-        public FileLogger()
+        public FileLogger(string fileName= "log.txt")
         {
-            _fileName = "log.txt";
+            _fileName = fileName;
         }
 
         public void Log(string message)
