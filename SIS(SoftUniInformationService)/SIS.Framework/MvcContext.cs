@@ -5,23 +5,26 @@ namespace SIS.Framework
 {
     public class MvcContext
     {
-        public static MvcContext Instance;
+        private static MvcContext Instance;
 
-        private MvcContext()
-        {
-        }
+        private MvcContext() { }
 
-        public static MvcContext Get => Instance == null ? (Instance = new MvcContext()) : Instance;
+        public static MvcContext Get => Instance ?? (Instance = new MvcContext());
 
         public string AssemblyName { get; set; }
 
+        public string ControllerSuffix { get; set; } = "Controller";
+
         public string ControllersFolder { get; set; } = "Controllers";
 
-        public string ControllersSuffix { get; set; } = "Controller";
-
-        public string ViewFolder { get; set; } = "Views";
+        public string ViewsFolderName { get; set; } = "Views";
 
         public string ModelsFolder { get; set; } = "Models";
 
+        public string ResourceFolderName { get; set; } = "Resources";
+
+        public string LayoutViewName { get; set; } = "_Layout";
+
+        public string RootDirectoryRelativePath { get; set; } = "../../..";
     }
 }

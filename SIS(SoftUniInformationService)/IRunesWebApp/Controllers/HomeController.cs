@@ -1,27 +1,12 @@
-﻿namespace IRunesWebApp.Controllers
-{
-    using SIS.Http.Requests.Contracts;
-    using SIS.Http.Responses.Contracts;
-    using Extensions;
-    using SIS.WebServer.Results;
-    using System.Net;
-    using System.Collections.Generic;
+﻿using SIS.Framework.ActionResults.Contracts;
 
+namespace IRunesWebApp.Controllers
+{
     public class HomeController : BaseController
     {
-        public IHttpResponse Index(IHttpRequest request)
+        public IActionResult Index(IndexViewModel model)
         {
-            if (this.IsAuthenticated(request))
-            {
-                var username = request.Session.GetParameter("username");
-                this.ViewBag["username"] = username.ToString();
-
-                return this.View("IndexLoggedIn");
-            }
-
             return this.View();
         }
-
-
     }
 }

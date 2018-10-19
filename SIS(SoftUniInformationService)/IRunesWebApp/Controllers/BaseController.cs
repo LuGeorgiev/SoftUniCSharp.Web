@@ -1,116 +1,115 @@
-﻿namespace IRunesWebApp.Controllers
-{
-    using IRunesWebApp.Data;
-    using Services;
-    using Services.Contracts;
-    using SIS.Http.Cookies;
-    using SIS.Http.Requests.Contracts;
-    using SIS.Http.Responses.Contracts;
-    using SIS.WebServer.Results;
-    using System.IO;
-    using System.Collections.Generic;
-    using System.Net;
-    using System.Runtime.CompilerServices;
-    using System;
-    using IRunesWebApp.Extensions;
-    using SIS.Http.Enums;
-    using SIS.Framework.Controllers;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Runtime.CompilerServices;
 
-    public abstract class BaseController:Controller
+using IRunesWebApp.Data;
+
+using Services;
+
+using SIS.Framework.Controllers;
+using SIS.Http.Cookies;
+using SIS.Http.Enums;
+using SIS.Http.Requests;
+using SIS.Http.Requests.Contracts;
+using SIS.Http.Responses;
+using SIS.Http.Responses.Contracts;
+using SIS.WebServer.Results;
+
+namespace IRunesWebApp.Controllers
+{
+    public abstract class BaseController : Controller
     {
         private const string RootDirectoryRelativePath = "../../../";
-        private const string ViewFolderName = "Views";
-        private const string ControlerDefaultName = "Controller";
-        private const string LayoutFimeName = "_Layout";
-        private const string HtmlFileExtension = ".html";
+
+        private const string ControllerDefaultName = "Controller";
+
         private const string DirectorySeparator = "/";
 
-        private readonly IUserCookieService userCookieService;
-        
+        private const string ViewsFolderName = "Views";
+
+        private const string HtmlFileExtension = ".html";
+
+        private const string LayoutViewFileName = "_Layout";
+
+        private const string RenderBodyConstant = "@RenderBody()";
+
+        protected IRunesContext Context { get; set; }
+
+        private readonly UserCookieService cookieService;
+
+        protected IDictionary<string, string> ViewBag { get; set; }
 
         public BaseController()
         {
             this.Context = new IRunesContext();
-            this.userCookieService = new UserCookieService();
+            this.cookieService = new UserCookieService();
             this.ViewBag = new Dictionary<string, string>();
         }
-
-        protected IDictionary<string, string> ViewBag { get; set; }
-
-        protected IRunesContext Context { get; set; }
 
         public bool IsAuthenticated(IHttpRequest request)
         {
             return request.Session.ContainsParameter("username");
         }
 
-        public void SignInUser(string username, IHttpResponse response, IHttpRequest request)
+        public void SignInUser(
+            string username,
+            IHttpResponse response,
+            IHttpRequest request)
         {
             request.Session.AddParameter("username", username);
-            var userCookieValue = this.userCookieService.GetUserCookieContent(username);
-            response.Cookies.Add(new HttpCookie("Irunes_auth", userCookieValue));
+            var userCookieValue = this.cookieService.GetUserCookieContent(username);
+            response.Cookies.Add(new HttpCookie("IRunes_auth", userCookieValue));
         }
 
         private string GetCurrentControllerName() =>
-            this.GetType().Name.Replace(ControlerDefaultName, string.Empty);
+            this.GetType().Name.Replace(ControllerDefaultName, string.Empty);
 
-        protected IHttpResponse View([CallerMemberName] string viewName="")
-        {            
-            var layoutViewPath = RootDirectoryRelativePath +
-                                ViewFolderName +
-                                DirectorySeparator +
-                                LayoutFimeName +
-                                HtmlFileExtension;
+        protected IHttpResponse ViewMethod([CallerMemberName] string viewName = "")
+        {
+            var layoutView = RootDirectoryRelativePath +
+                ViewsFolderName +
+                DirectorySeparator +
+                LayoutViewFileName +
+                HtmlFileExtension;
 
-            //../../../Views/ControllerName/ActionName.html
             string filePath = RootDirectoryRelativePath +
-                                ViewFolderName +
-                                DirectorySeparator +
-                                this.GetCurrentControllerName() +
-                                DirectorySeparator +
-                                viewName +
-                                HtmlFileExtension;
+                ViewsFolderName +
+                DirectorySeparator +
+                this.GetCurrentControllerName() +
+                DirectorySeparator +
+                viewName +
+                HtmlFileExtension;
 
             if (!File.Exists(filePath))
             {
-                return new BadRequestResult($"View {viewName} not found.", HttpResponseStatusCode.NotFound);
+                return new BadRequestResult(
+                    $"View {viewName} not found.",
+                    HttpResponseStatusCode.NotFound);
             }
 
-            string viewContent = BuildViewContent(filePath);
+            var viewContent = BuildViewContent(filePath);
 
-            var layoutContent = File.ReadAllText(layoutViewPath);
 
-            //TODO navigation to be re-worked
-            //var layoutNavigation = "";
-            //if (this.ViewBag.ContainsKey("username"))
-            //{
-            //    layoutNavigation = File.ReadAllText("../../../Views/Navigation/Logged.html");
-            //}
-            //else
-            //{
-            //    layoutNavigation = File.ReadAllText("../../../Views/Navigation/NotLogged.html");
-
-            //}
-            var view = layoutContent.Replace("@RenderBody()", viewContent);
-            //view = view.Replace("@RenderNavigation()", layoutNavigation);            
+            var viewLayout = File.ReadAllText(layoutView);
+            var view = viewLayout.Replace(RenderBodyConstant, viewContent);
 
             var response = new HtmlResult(view, HttpResponseStatusCode.Ok);
+
             return response;
         }
-       
 
         private string BuildViewContent(string filePath)
         {
             var viewContent = File.ReadAllText(filePath);
 
-
-            foreach (var key in ViewBag.Keys)
+            foreach (var viewBagKey in ViewBag.Keys)
             {
-                var dynamicPlaceholder = $"{{{{{key}}}}}";
-
-                if (viewContent.Contains(dynamicPlaceholder))
+                var dynamicDataPlaceholder = $"{{{{{viewBagKey}}}}}";
+                if (viewContent.Contains(dynamicDataPlaceholder))
                 {
-                    viewContent = viewContent.Replace(dynamicPlaceholder, this.ViewBag[key]);
+                    viewContent = viewContent.Replace(
+                        dynamicDataPlaceholder,
+                        this.ViewBag[viewBagKey]);
                 }
             }
 

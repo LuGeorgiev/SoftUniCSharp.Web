@@ -6,6 +6,12 @@
 
         public const string HostHeaderKey = "Host";
 
+        public const string HttpNewLine = "\r\n";
+
         public static string[] ResourceExtensions = new string[] {".js", ".css" };
+
+        public const string DirectorySeparator = "/";
+
+        public const string HtmlFileExtension = ".html";
     }
 }

@@ -2,6 +2,7 @@
 using IRunesWebApp.Models;
 using Services;
 using Services.Contracts;
+using SIS.Framework.ActionResults.Contracts;
 using SIS.Http.Cookies;
 using SIS.Http.Enums;
 using SIS.Http.Requests.Contracts;
@@ -22,12 +23,12 @@ namespace IRunesWebApp.Controllers
             this.hashService = new HashService();
         }
 
-        public IHttpResponse Login(IHttpRequest request) => this.View();
+        public IActionResult Login() => this.View();
 
-        public IHttpResponse LoginPost(IHttpRequest request)
+        public IActionResult LoginPost()
         {
-            var username = request.FormData["username"].ToString();
-            var password = request.FormData["password"].ToString();
+            var username = this.Request.FormData["username"].ToString();
+            var password = this.Request.FormData["password"].ToString();
 
             var hashedPassword = this.hashService.Hash(password);
 
@@ -35,32 +36,32 @@ namespace IRunesWebApp.Controllers
 
             if (user == null)
             {
-                return new RedirectResult("/Users/Login");
+                return this.RedirectToAction("/Users/Login");
             }
 
             var response = new RedirectResult("/Home/Index");
 
-            this.SignInUser(username, response, request);
+            this.SignInUser(username, response, this.Request);
 
-            return response;
+            return this.View("/");
         }
 
-        public IHttpResponse Register(IHttpRequest request) => this.View();
+        public IActionResult Register() => this.View();
 
-        public IHttpResponse RegisterPost(IHttpRequest request)
+        public IActionResult RegisterPost()
         {
-            var userName = request.FormData["username"].ToString().Trim();
-            var password = request.FormData["password"].ToString();
-            var confirmPassword = request.FormData["confirmPassword"].ToString();
+            var userName = this.Request.FormData["username"].ToString().Trim();
+            var password = this.Request.FormData["password"].ToString();
+            var confirmPassword = this.Request.FormData["confirmPassword"].ToString();
 
             if (this.Context.Users.Any(x => x.Username == userName))
             {
-                return new BadRequestResult("User with the same name already exists.", HttpResponseStatusCode.BadRequest);
+                return this.RedirectToAction("/users/login");
             }
 
             if (password != confirmPassword)
             {
-                return new RedirectResult("/Users/Register");
+                return this.RedirectToAction("/Users/Register");
             }
      
             var hashedPassword = this.hashService.Hash(password);
@@ -72,20 +73,14 @@ namespace IRunesWebApp.Controllers
             };
             this.Context.Users.Add(user);
 
-            try
-            {
+            
                 this.Context.SaveChanges();
-            }
-            catch (Exception e)
-            {
-                return new BadRequestResult(e.Message, HttpResponseStatusCode.InternalServerError);
-            }
-
+           
             var response = new RedirectResult("/");
 
-            this.SignInUser(userName, response, request);
+            this.SignInUser(userName, response, this.Request);
 
-            return response;
+            return this.RedirectToAction("/");
         }
 
         public IHttpResponse Logout(IHttpRequest request)

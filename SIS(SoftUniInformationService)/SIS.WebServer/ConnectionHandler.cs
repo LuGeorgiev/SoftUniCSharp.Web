@@ -6,23 +6,32 @@
     using SIS.Http.Cookies;
     using SIS.Http.Session;
     using System;
-    using System.Net;
     using System.Net.Sockets;
     using System.Text;
     using System.Threading.Tasks;
     using SIS.WebServer.Api;
+    using SIS.Http.Enums;
+    using SIS.WebServer.Results;
+    using SIS.Http.Exceptions;
+    using SIS.Http.Common;
 
     public class ConnectionHandler
     {
         private readonly Socket client;
-        private readonly IHttpHandler handler;
 
-        //private const string RootDirectory = "../../../";
+        private const string RootDirectoryRelativePath = "../../..";
 
-        public ConnectionHandler(Socket client, IHttpHandler handler)
+        private readonly IHttpHandlingContext handlersContext;
+
+        public ConnectionHandler(
+            Socket client,
+            IHttpHandlingContext handlersContext)
         {
+            CoreValidator.ThrowIfNull(client, nameof(client));
+            CoreValidator.ThrowIfNull(handlersContext, nameof(handlersContext));
+
             this.client = client;
-            this.handler = handler;
+            this.handlersContext = handlersContext;
         }
 
         private async Task<IHttpRequest> ReadRequest()
@@ -33,53 +42,27 @@
             while (true)
             {
                 int numberOfBytesRead = await this.client.ReceiveAsync(data.Array, SocketFlags.None);
-                if (numberOfBytesRead==0)
+
+                if (numberOfBytesRead == 0)
                 {
-                   break;
+                    break;
                 }
 
                 var bytesAsString = Encoding.UTF8.GetString(data.Array, 0, numberOfBytesRead);
                 result.Append(bytesAsString);
 
-                if (numberOfBytesRead<1023)
+                if (numberOfBytesRead < 1023)
                 {
                     break;
                 }
             }
 
-            if (result.Length==0)
+            if (result.Length == 0)
             {
                 return null;
             }
 
             return new HttpRequest(result.ToString());
-        }           
-       
-        private string SetRequestSession(IHttpRequest request)
-        {
-            string sessionId = null;
-
-            if (request.Cookies.ContainsCookie(HttpSessionStorage.Session_Cookie_Key))
-            {
-                var cookie = request.Cookies.GetCookie(HttpSessionStorage.Session_Cookie_Key);
-                sessionId = cookie.Value;
-                request.Session = HttpSessionStorage.GetSession(sessionId);
-            }
-            else
-            {
-                sessionId = Guid.NewGuid().ToString();
-                request.Session = HttpSessionStorage.GetSession(sessionId);
-            }
-
-            return sessionId;
-        }
-
-        private void SetResponseSession(IHttpResponse response, string sessionId)
-        {
-            if (sessionId != null)
-            {
-                response.AddCookie(new HttpCookie(HttpSessionStorage.Session_Cookie_Key, $"{sessionId}; HttpOnly"));
-            }
         }
 
         private async Task PrepareResponse(IHttpResponse httpResponse)
@@ -89,23 +72,62 @@
             await this.client.SendAsync(byteSegments, SocketFlags.None);
         }
 
+        private string SetRequestSession(IHttpRequest httpRequest)
+        {
+            string sessionId = null;
+
+            if (httpRequest.Cookies.ContainsCookie(HttpSessionStorage.Session_Cookie_Key))
+            {
+                var cookie = httpRequest.Cookies.GetCookie(HttpSessionStorage.Session_Cookie_Key);
+                sessionId = cookie.Value;
+                httpRequest.Session = HttpSessionStorage.GetSession(sessionId);
+            }
+            else
+            {
+                sessionId = Guid.NewGuid().ToString();
+                httpRequest.Session = HttpSessionStorage.GetSession(sessionId);
+            }
+
+            return sessionId;
+        }
+
+        private void SetResponseSession(IHttpResponse httpResponse, string sessionId)
+        {
+            if (sessionId != null)
+            {
+                httpResponse
+                    .AddCookie(new HttpCookie(HttpSessionStorage.Session_Cookie_Key
+                        , sessionId));
+            }
+        }
+
         public async Task ProcessRequestAsync()
         {
-            var httpRequest = await this.ReadRequest();
-
-            if (httpRequest != null)
+            try
             {
-                string sessionId = this.SetRequestSession(httpRequest);
+                var httpRequest = await this.ReadRequest();
 
-                var httpResponse = this.handler.Handle(httpRequest);
+                if (httpRequest != null)
+                {
+                    string sessionId = this.SetRequestSession(httpRequest);
 
-                this.SetResponseSession(httpResponse, sessionId);
+                    var httpResponse = this.handlersContext.Handle(httpRequest);
 
-                await this.PrepareResponse(httpResponse);
+                    this.SetResponseSession(httpResponse, sessionId);
+
+                    await this.PrepareResponse(httpResponse);
+                }
+            }
+            catch (BadRequestException e)
+            {
+                await this.PrepareResponse(new TextResult(e.Message, HttpResponseStatusCode.BadRequest));
+            }
+            catch (Exception e)
+            {
+                await this.PrepareResponse(new TextResult(e.Message, HttpResponseStatusCode.InternalServerError));
             }
 
             this.client.Shutdown(SocketShutdown.Both);
         }
     }
-
 }

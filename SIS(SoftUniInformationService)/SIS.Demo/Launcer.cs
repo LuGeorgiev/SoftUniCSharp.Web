@@ -10,9 +10,9 @@ namespace SIS.Demo
         static void Main(string[] args)
         {
 
-            var server = new Server(8000, new ControllerRouter());
+            //var server = new Server(8000, new ControllerRouter());
 
-            MvcEngine.Run(server);
+            //MvcEngine.Run(server);
         }
     }
 }

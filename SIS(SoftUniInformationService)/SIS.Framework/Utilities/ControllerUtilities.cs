@@ -1,21 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using SIS.Framework.Controllers;
 
 namespace SIS.Framework.Utilities
 {
     public static class ControllerUtilities
     {
-        public static string GetControlerName(object controller)
-            => controller.GetType()
-            .Name
-            .Replace(MvcContext.Get.ControllersSuffix, string.Empty);
+        public static string GetControllerName(object controller) =>
+            controller
+                .GetType()
+                .Name
+                .Replace(MvcContext.Get.ControllerSuffix, string.Empty);
 
-        //TODO path refactor
-        public static string GetViewFullQualifiedName(string controller, string viewName)
-            => string.Format("../../../{0}/{1}/{2}.html",
-                MvcContext.Get.ViewFolder,
-                controller,
+        public static string GetViewFullyQualifiedName(
+            string controllerName,
+            string viewName) =>
+            string.Format("../../../{0}/{1}/{2}.html",
+                MvcContext.Get.ViewsFolderName,
+                controllerName,
                 viewName);
     }
 }

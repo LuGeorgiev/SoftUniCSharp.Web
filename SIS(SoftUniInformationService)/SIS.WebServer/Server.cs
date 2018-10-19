@@ -9,26 +9,22 @@
 
     public class Server
     {
-        private const string LocalHostIpAddress = "127.0.0.1";
+        private const string LocalhostIpAddress = "127.0.0.1";
+
         private readonly int port;
+
         private readonly TcpListener listener;
-        private readonly IHttpHandler handler;
+
+        private readonly IHttpHandlingContext handlersContext;
+
         private bool isRunning;
 
-        //public Server(int port, ServerRoutingTable serverRoutingTable)
-        //{
-        //    this.port = port;
-        //    this.listener = new TcpListener(IPAddress.Parse(LocalHostIpAddress), this.port);
-
-        //    this.handler =new HttpHandler( serverRoutingTable);
-        //}
-
-        public Server(int port, IHttpHandler handler)
+        public Server(int port, IHttpHandlingContext handlersContext)
         {
             this.port = port;
-            this.listener = new TcpListener(IPAddress.Parse(LocalHostIpAddress), this.port);
+            this.listener = new TcpListener(IPAddress.Parse(LocalhostIpAddress), port);
 
-            this.handler = handler;
+            this.handlersContext = handlersContext;
         }
 
         public void Run()
@@ -36,23 +32,21 @@
             this.listener.Start();
             this.isRunning = true;
 
-            Console.WriteLine($"Server is running on http://{LocalHostIpAddress}:{port}");
+            Console.WriteLine($"Server started at http://{LocalhostIpAddress}:{this.port}");
+            while (isRunning)
+            {
+                Console.WriteLine("Waiting for client...");
 
-            var task = Task.Run(this.ListenLoop);
-            task.Wait();
+                var client = listener.AcceptSocketAsync().GetAwaiter().GetResult();
+
+                Task.Run(() => Listen(client));
+            }
         }
 
-        public async Task ListenLoop()
+        public async void Listen(Socket client)
         {
-            while (this.isRunning)
-            {
-                var client = await this.listener.AcceptSocketAsync();
-                var connectionHandler = new ConnectionHandler(client, this.handler);
-
-                var responseTask = connectionHandler.ProcessRequestAsync();
-
-                responseTask.Wait();
-            }
+            var connectionHandler = new ConnectionHandler(client, this.handlersContext);
+            await connectionHandler.ProcessRequestAsync();
         }
 
     }

@@ -1,0 +1,2 @@
+Bootstrap is loading correctly
+IRunes functionallity do not support full SIS.Framework

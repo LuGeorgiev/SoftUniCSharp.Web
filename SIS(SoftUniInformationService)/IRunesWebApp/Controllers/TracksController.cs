@@ -8,34 +8,25 @@ using SIS.Http.Requests.Contracts;
 using SIS.Http.Responses.Contracts;
 using SIS.WebServer.Results;
 using IRunesWebApp.Models;
+using SIS.Framework.ActionResults.Contracts;
 
 namespace IRunesWebApp.Controllers
 {
     public class TracksController : BaseController
     {
-        public IHttpResponse Create(IHttpRequest request)
+        public IActionResult Create(IHttpRequest request)
         {
             if (!this.IsAuthenticated(request))
             {
-                return new RedirectResult("/Users/Login");
+                return this.View("/Users/Login");
             }
-
-            if (!request.QueryData.ContainsKey("albumId"))
-            {
-                return new BadRequestResult("Must provide a proper album id in query!", HttpResponseStatusCode.BadRequest);
-            }
+                      
 
             var albumId = request.QueryData["albumId"].ToString();
             var album = this.Context.Albums.FirstOrDefault(x => x.Id == albumId);
-
-            if (album == null)
-            {
-                return new BadRequestResult($"Album with id {albumId} does not exist!", HttpResponseStatusCode.NotFound);
-            }
-
             this.ViewBag["albumId"] = albumId;
 
-            return this.View();
+            return this.View("/albums/all");
         }
 
         public IHttpResponse CreatePost(IHttpRequest request)
@@ -85,22 +76,22 @@ namespace IRunesWebApp.Controllers
             return new RedirectResult($"/Albums/Details?id={albumId}");
         }
 
-        public IHttpResponse Details(IHttpRequest request)
+        public IActionResult Details(IHttpRequest request)
         {
             if (!this.IsAuthenticated(request))
             {
-                return new RedirectResult("/Users/Login");
+                return this.View("/Users/Login");
             }
 
-            if (!request.QueryData.ContainsKey("albumId"))
-            {
-                return new BadRequestResult("Must provide a proper album id in query!", HttpResponseStatusCode.BadRequest);
-            }
+            //if (!request.QueryData.ContainsKey("albumId"))
+            //{
+            //    return new BadRequestResult("Must provide a proper album id in query!", HttpResponseStatusCode.BadRequest);
+            //}
 
-            if (!request.QueryData.ContainsKey("trackId"))
-            {
-                return new BadRequestResult("Must provide a proper track id in query!", HttpResponseStatusCode.BadRequest);
-            }
+            //if (!request.QueryData.ContainsKey("trackId"))
+            //{
+            //    return new BadRequestResult("Must provide a proper track id in query!", HttpResponseStatusCode.BadRequest);
+            //}
 
             var albumId = request.QueryData["albumId"].ToString();
             var trackId = request.QueryData["trackId"].ToString();
@@ -108,14 +99,14 @@ namespace IRunesWebApp.Controllers
             var album = this.Context.Albums.FirstOrDefault(x => x.Id == albumId);
             var track = this.Context.Tracks.FirstOrDefault(x => x.Id == trackId);
 
-            if (album == null)
-            {
-                return new BadRequestResult($"Album with id {albumId} not found!", HttpResponseStatusCode.NotFound);
-            }
-            if (track == null)
-            {
-                return new BadRequestResult($"Track with id {trackId} not found!", HttpResponseStatusCode.NotFound);
-            }
+            //if (album == null)
+            //{
+            //    return new BadRequestResult($"Album with id {albumId} not found!", HttpResponseStatusCode.NotFound);
+            //}
+            //if (track == null)
+            //{
+            //    return new BadRequestResult($"Track with id {trackId} not found!", HttpResponseStatusCode.NotFound);
+            //}
 
             this.ViewBag["trackLink"] = track.Link;
             this.ViewBag["trackName"] = track.Name;

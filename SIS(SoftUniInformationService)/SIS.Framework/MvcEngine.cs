@@ -6,47 +6,19 @@ using System.Text;
 
 namespace SIS.Framework
 {
-    public static class MvcEngine
+    public class MvcEngine
     {
-        public static void Run(Server server)
+        public void Run(Server server)
         {
-            RegisterAssemblyName();
-            RegisterControllerData();
-            RegisterViewData();
-            RegisterModelsData();
-
+            MvcContext.Get.AssemblyName = Assembly.GetEntryAssembly().GetName().Name;
             try
             {
                 server.Run();
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine(e);
             }
-        }
-
-        private static void RegisterAssemblyName()
-        {
-            MvcContext.Get.AssemblyName = Assembly
-                .GetEntryAssembly()
-                .GetName()
-                .Name;
-        }
-
-        private static void RegisterControllerData()
-        {
-            MvcContext.Get.ControllersFolder = "Controllers";
-            MvcContext.Get.ControllersSuffix = "Controller";
-        }
-
-        private static void RegisterViewData()
-        {
-            MvcContext.Get.ViewFolder = "Views";
-        }
-
-        private static void RegisterModelsData()
-        {
-            MvcContext.Get.ModelsFolder = "Models";
         }
     }
 }

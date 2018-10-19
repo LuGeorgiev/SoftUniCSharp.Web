@@ -22,18 +22,13 @@ namespace SIS.Framework
         }
 
         public IHttpResponse Handle(IHttpRequest request)
-        {
-            if (IsResourceRequest(request))
-            {
-                return this.HandleRequestResponse(request.Path);
-            }
+        {           
 
             if (!this.serverRoutingTable.Routes.ContainsKey(request.RequestMethod)
             || !this.serverRoutingTable.Routes[request.RequestMethod].ContainsKey(request.Path))
             {
                 return new HttpResponse(HttpResponseStatusCode.NotFound);
             }
-
 
             return this.serverRoutingTable.Routes[request.RequestMethod][request.Path].Invoke(request);
         }
@@ -48,6 +43,7 @@ namespace SIS.Framework
 
                 return isValid;
             }
+
             //httpRequest.Path -> .js, .css -> Resource/css/?! -> bootestrap.min
             return false;
         }
