@@ -1,93 +1,80 @@
-﻿using IRunesWebApp.Extensions;
-using IRunesWebApp.Models;
-using Services;
-using Services.Contracts;
+﻿using IRunesWebApp.Services.Contracts;
+using IRunesWebApp.ViewModels;
 using SIS.Framework.ActionResults.Contracts;
-using SIS.Http.Cookies;
-using SIS.Http.Enums;
-using SIS.Http.Requests.Contracts;
-using SIS.Http.Responses.Contracts;
-using SIS.WebServer.Results;
-using System;
-using System.Linq;
-using System.Net;
+using SIS.Framework.Attributes.Methods;
+using SIS.Framework.Controllers;
 
 namespace IRunesWebApp.Controllers
 {
-    public class UsersController:BaseController
+    public class UsersController:Controller
     {
-        private readonly IHashService hashService;
+        private readonly IUsersService usersService;
 
-        public UsersController()
+        public UsersController(IUsersService usersService)
         {
-            this.hashService = new HashService();
+            this.usersService = usersService;
         }
 
         public IActionResult Login() => this.View();
 
-        public IActionResult LoginPost()
+        [HttpPost]
+        public IActionResult Login(LoginViewModel model)
         {
-            var username = this.Request.FormData["username"].ToString();
-            var password = this.Request.FormData["password"].ToString();
-
-            var hashedPassword = this.hashService.Hash(password);
-
-            var user = this.Context.Users.FirstOrDefault(u => u.Username == username && u.HashedPassword == hashedPassword);
-
-            if (user == null)
-            {
-                return this.RedirectToAction("/Users/Login");
-            }
-
-            var response = new RedirectResult("/Home/Index");
-
-            this.SignInUser(username, response, this.Request);
-
-            return this.View("/");
-        }
-
-        public IActionResult Register() => this.View();
-
-        public IActionResult RegisterPost()
-        {
-            var userName = this.Request.FormData["username"].ToString().Trim();
-            var password = this.Request.FormData["password"].ToString();
-            var confirmPassword = this.Request.FormData["confirmPassword"].ToString();
-
-            if (this.Context.Users.Any(x => x.Username == userName))
+            if (!ModelState.IsValid.HasValue || !ModelState.IsValid.Value)
             {
                 return this.RedirectToAction("/users/login");
             }
 
-            if (password != confirmPassword)
+            var userExists = this.usersService
+                .ExistsByUsernameAndPassword(
+                    model.Username,
+                    model.Password);
+
+            if (!userExists)
             {
-                return this.RedirectToAction("/Users/Register");
+                return this.RedirectToAction("/users/login");
             }
-     
-            var hashedPassword = this.hashService.Hash(password);
-                        
-            var user = new User
+
+            this.Request.Session.AddParameter("username", model.Username);
+
+            return this.RedirectToAction("/home/indexloggedin");
+        }
+        
+
+        public IActionResult Register() => this.View();
+
+        public IActionResult RegisterPost(RegisterViewModel model)
+        {
+            if (!ModelState.IsValid.HasValue || !ModelState.IsValid.Value)
             {
-                Username = userName,
-                HashedPassword = hashedPassword,
-            };
-            this.Context.Users.Add(user);
+                return this.RedirectToAction("/users/register");
+            }
 
-            
-                this.Context.SaveChanges();
-           
-            var response = new RedirectResult("/");
+            var userName = model.Username;
+            var password = model.Password.Trim();
+            var confirmPassword = model.ConfirmPassword.Trim();
 
-            this.SignInUser(userName, response, this.Request);
+            if (password!=confirmPassword)
+            {
+                return this.RedirectToAction("/users/login");
+            }
 
-            return this.RedirectToAction("/");
+            var wasSuccessfullyRegistered = this.usersService.RegisterUser(userName, password);
+
+            if (!wasSuccessfullyRegistered)
+            {
+                return this.RedirectToAction("/users/login");
+            }
+
+            this.Request.Session.AddParameter("username", model.Username);
+            return this.RedirectToAction("/home/indexloggedin");
         }
 
-        public IHttpResponse Logout(IHttpRequest request)
+        public IActionResult Logout()
         {
-            request.Session.ClearParameters();
+            this.Request.Session.ClearParameters();
 
-            return new RedirectResult("/");
+            return this.RedirectToAction("/");
         }
     }
 }

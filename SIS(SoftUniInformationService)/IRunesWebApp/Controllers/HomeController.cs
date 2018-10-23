@@ -1,10 +1,11 @@
 ﻿using SIS.Framework.ActionResults.Contracts;
+using SIS.Framework.Controllers;
 
 namespace IRunesWebApp.Controllers
 {
-    public class HomeController : BaseController
+    public class HomeController : Controller
     {
-        public IActionResult Index(IndexViewModel model)
+        public IActionResult Index()
         {
             return this.View();
         }
