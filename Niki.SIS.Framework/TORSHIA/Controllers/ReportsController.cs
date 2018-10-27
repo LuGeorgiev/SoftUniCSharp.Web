@@ -22,7 +22,7 @@ namespace TORSHIA.Controllers
         {
             var user = this.db
                 .Users
-                .FirstOrDefault(x => x.Username == this.User);
+                .FirstOrDefault(x => x.Username == this.User.Username);
             if (user == null)
             {
                 return this.Redirect("/Users/Login");
@@ -65,7 +65,7 @@ namespace TORSHIA.Controllers
         {
             var user = this.db
                .Users
-               .FirstOrDefault(x => x.Username == this.User);
+               .FirstOrDefault(x => x.Username == this.User.Username);
             if (user.Role != Role.Admin)
             {
                 return this.Redirect("/Users/Login");
@@ -94,7 +94,7 @@ namespace TORSHIA.Controllers
         {
             var user = this.db
              .Users
-             .FirstOrDefault(x => x.Username == this.User);
+             .FirstOrDefault(x => x.Username == this.User.Username);
             if (user.Role != Role.Admin)
             {
                 return this.Redirect("/Users/Login");
@@ -115,7 +115,7 @@ namespace TORSHIA.Controllers
                  DueDate=report.Task.DueDate==null?"No date": report.Task.DueDate.Value.ToString("dd/MM/yyyy"),
                  Level = report.Task.AffectedSectors.Count(),
                  Participants = report.Task.Participants,
-                 ReportedBy = this.User,
+                 ReportedBy = this.User.Username,
                  ReportedDate = report.ReportedOn.ToString("dd/MM/yyyy"),
                  TaskTitle = report.Task.Title,
                  Status=report.Status.ToString()

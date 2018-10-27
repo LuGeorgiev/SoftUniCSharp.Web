@@ -9,8 +9,9 @@ namespace MishMashWebApp
 {
     class Startup : IMvcApplication
     {
-        public void Configure()
+        public MvcFrameworkSettings Configure()
         {
+            return new MvcFrameworkSettings();
         }
 
         public void ConfigureServices(IServiceCollection collection)

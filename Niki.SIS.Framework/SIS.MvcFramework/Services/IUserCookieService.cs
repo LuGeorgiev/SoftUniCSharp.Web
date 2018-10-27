@@ -2,8 +2,8 @@
 {
     public interface IUserCookieService
     {
-        string GetUserCookie(string userName);
+        string GetUserCookie(MvcUserInfo userName);
 
-        string GetUserData(string cookieContent);
+        MvcUserInfo GetUserData(string cookieContent);
     }
 }

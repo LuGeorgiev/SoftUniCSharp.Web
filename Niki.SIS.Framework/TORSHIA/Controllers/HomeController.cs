@@ -17,7 +17,7 @@ namespace TORSHIA.Controllers
             if (this.User!=null)
             {
                 var user = this.db.Users
-                    .FirstOrDefault(x => x.Username == this.User);
+                    .FirstOrDefault(x => x.Username == this.User.Username);
 
                 string role = user.Role.ToString();
 

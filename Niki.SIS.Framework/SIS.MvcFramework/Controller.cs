@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
+using SIS.HTTP.Cookies;
 using SIS.HTTP.Enums;
 using SIS.HTTP.Headers;
 using SIS.HTTP.Requests;
@@ -13,7 +15,7 @@ namespace SIS.MvcFramework
     {
         protected Controller()
         {
-            this.Response = new HttpResponse {StatusCode = HttpResponseStatusCode.Ok};
+            this.Response = new HttpResponse { StatusCode = HttpResponseStatusCode.Ok };
         }
 
         public IHttpRequest Request { get; set; }
@@ -24,32 +26,57 @@ namespace SIS.MvcFramework
 
         public IUserCookieService UserCookieService { get; internal set; }
 
-        protected string User
+        public static MvcUserInfo GetUserData(
+            IHttpCookieCollection cookieCollection,
+            IUserCookieService cookieService)
         {
-            get
+            if (!cookieCollection.ContainsCookie(".auth-cakes"))
             {
-                if (!this.Request.Cookies.ContainsCookie(".auth-cakes"))
-                {
-                    return null;
-                }
+                return new MvcUserInfo();
+            }
 
-                var cookie = this.Request.Cookies.GetCookie(".auth-cakes");
-                var cookieContent = cookie.Value;
-                var userName = this.UserCookieService.GetUserData(cookieContent);
+            var cookie = cookieCollection.GetCookie(".auth-cakes");
+            var cookieContent = cookie.Value;
+
+            try
+            {
+                var userName = cookieService.GetUserData(cookieContent);
                 return userName;
             }
+            catch (Exception)
+            {
+                return new MvcUserInfo();
+            }
         }
-        
-        protected IHttpResponse View(string viewName, string layoutName = "_Layout")
+
+        protected MvcUserInfo User => GetUserData(this.Request.Cookies, this.UserCookieService);
+
+        protected IHttpResponse View(string viewName = null, string layoutName = "_Layout")
         {
-            var allContent = this.GetViewContent(viewName, (object)null, layoutName);
-            this.PrepareHtmlResult(allContent);
-            return this.Response;
+            return this.View(viewName, (object)null, layoutName);
         }
-        
-        protected IHttpResponse View<T>(string viewName, T model = null, string layoutName = "_Layout")
+
+        protected IHttpResponse View<T>(T model = null, string layoutName = "_Layout")
             where T : class
         {
+            return this.View(null, model, layoutName);
+        }
+
+        protected IHttpResponse View<T>(
+            string viewName = null,
+            T model = null,
+            string layoutName = "_Layout")
+            where T : class
+        {
+            if (viewName == null)
+            {
+                viewName = this.Request.Path.Trim('/', '\\');
+                if (string.IsNullOrWhiteSpace(viewName))
+                {
+                    viewName = "Home/Index";
+                }
+            }
+
             var allContent = this.GetViewContent(viewName, model, layoutName);
             this.PrepareHtmlResult(allContent);
             return this.Response;
@@ -79,9 +106,37 @@ namespace SIS.MvcFramework
 
         protected IHttpResponse BadRequestError(string errorMessage)
         {
-            var viewModel = new ErrorViewModel {Error = errorMessage};
+            var viewModel = new ErrorViewModel { Error = errorMessage };
             var allContent = this.GetViewContent("Error", viewModel);
             this.PrepareHtmlResult(allContent);
+            this.Response.StatusCode = HttpResponseStatusCode.BadRequest;
+            return this.Response;
+        }
+
+        protected IHttpResponse BadRequestErrorWithView(string errorMessage)
+        {
+            return this.BadRequestErrorWithView(errorMessage, (object)null);
+        }
+
+        protected IHttpResponse BadRequestErrorWithView<T>(string errorMessage, T model, string layoutName = "_Layout")
+        {
+            var errorContent = this.GetViewContent("Error", new ErrorViewModel { Error = errorMessage }, null);
+
+            var viewName = this.Request.Path.Trim('/', '\\');
+            if (string.IsNullOrWhiteSpace(viewName))
+            {
+                viewName = "Home/Index";
+            }
+
+            var viewContent = this.GetViewContent(viewName, model, null);
+            var allViewContent = errorContent + Environment.NewLine + viewContent;
+            var errorAndViewContent = this.ViewEngine.GetHtml(viewName, allViewContent, model, this.User);
+
+            var layoutFileContent = System.IO.File.ReadAllText($"Views/{layoutName}.html");
+            var allContent = layoutFileContent.Replace("@RenderBody()", errorAndViewContent);
+            var layoutContent = this.ViewEngine.GetHtml("_Layout", allContent, model, this.User);
+
+            this.PrepareHtmlResult(layoutContent);
             this.Response.StatusCode = HttpResponseStatusCode.BadRequest;
             return this.Response;
         }
@@ -100,10 +155,15 @@ namespace SIS.MvcFramework
             var content = this.ViewEngine.GetHtml(viewName,
                 System.IO.File.ReadAllText("Views/" + viewName + ".html"), model, this.User);
 
-            var layoutFileContent = System.IO.File.ReadAllText($"Views/{layoutName}.html");
-            var allContent = layoutFileContent.Replace("@RenderBody()", content);
-            var layoutContent = this.ViewEngine.GetHtml("_Layout", allContent, model, this.User);
-            return layoutContent;
+            if (layoutName != null)
+            {
+                var layoutFileContent = System.IO.File.ReadAllText($"Views/{layoutName}.html");
+                var allContent = layoutFileContent.Replace("@RenderBody()", content);
+                var layoutContent = this.ViewEngine.GetHtml("_Layout", allContent, model, this.User);
+                return layoutContent;
+            }
+
+            return content;
         }
 
         private void PrepareHtmlResult(string content)

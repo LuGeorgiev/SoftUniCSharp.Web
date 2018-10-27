@@ -18,7 +18,7 @@ namespace MishMashWebApp.Controllers
             this.hashService = hashService;
         }
 
-        [HttpGet("/Users/Logout")]
+       
         public IHttpResponse Logout()
         {
             if (!this.Request.Cookies.ContainsCookie(".auth-cakes"))
@@ -32,14 +32,14 @@ namespace MishMashWebApp.Controllers
             return this.Redirect("/");
         }
 
-        [HttpGet("/Users/Login")]
+        
         public IHttpResponse Login()
         {
-            return this.View("Users/Login");
+            return this.View();
         }
 
-        [HttpPost("/Users/Login")]
-        public IHttpResponse DoLogin(DoLoginInputModel model)
+        [HttpPost]
+        public IHttpResponse Login(DoLoginInputModel model)
         {
             var hashedPassword = this.hashService.Hash(model.Password);
 
@@ -49,49 +49,50 @@ namespace MishMashWebApp.Controllers
 
             if (user == null)
             {
-                return this.BadRequestError("Invalid username or password.");
+                return this.BadRequestErrorWithView("Invalid username or password.");
             }
 
-            var cookieContent = this.UserCookieService.GetUserCookie(user.Username);
+            var mvcUser = new MvcUserInfo { Username = user.Username, Role = user.Role.ToString(), Info = user.Email };
+            var cookieContent = this.UserCookieService.GetUserCookie(mvcUser);
 
             var cookie = new HttpCookie(".auth-cakes", cookieContent, 7) { HttpOnly = true };
             this.Response.Cookies.Add(cookie);
             return this.Redirect("/");
         }
 
-        [HttpGet("/Users/Register")]
+        
         public IHttpResponse Register()
         {
-            return this.View("Users/Register");
+            return this.View();
         }
 
-        [HttpPost("/Users/Register")]
-        public IHttpResponse DoRegister(DoRegisterInputModel model)
+        [HttpPost]
+        public IHttpResponse Register(DoRegisterInputModel model)
         {
             // Validate
             if (string.IsNullOrWhiteSpace(model.Username) || model.Username.Trim().Length < 4)
             {
-                return this.BadRequestError("Please provide valid username with length of 4 or more characters.");
+                return this.BadRequestErrorWithView("Please provide valid username with length of 4 or more characters.");
             }
 
             if (string.IsNullOrWhiteSpace(model.Email) || model.Email.Trim().Length < 4)
             {
-                return this.BadRequestError("Please provide valid email with length of 4 or more characters.");
+                return this.BadRequestErrorWithView("Please provide valid email with length of 4 or more characters.");
             }
 
             if (this.Db.Users.Any(x => x.Username == model.Username.Trim()))
             {
-                return this.BadRequestError("User with the same name already exists.");
+                return this.BadRequestErrorWithView("User with the same name already exists.");
             }
 
             if (string.IsNullOrWhiteSpace(model.Password) || model.Password.Length < 6)
             {
-                return this.BadRequestError("Please provide password of length 6 or more.");
+                return this.BadRequestErrorWithView("Please provide password of length 6 or more.");
             }
 
             if (model.Password != model.ConfirmPassword)
             {
-                return this.BadRequestError("Passwords do not match.");
+                return this.BadRequestErrorWithView("Passwords do not match.");
             }
 
             // Hash password

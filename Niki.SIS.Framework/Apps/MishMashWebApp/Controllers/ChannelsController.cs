@@ -12,13 +12,9 @@ namespace MishMashWebApp.Controllers
 {
     public class ChannelsController : BaseController
     {
-        [HttpGet("/Channels/Details")]
+       [Authorize]
         public IHttpResponse Details(int id)
-        {
-            if (this.User == null)
-            {
-                return this.Redirect("/Users/Login");
-            }
+        {            
 
             var channelViewModel = this.Db.Channels.Where(x => x.Id == id)
                 .Select(x => new ChannelViewModel
@@ -30,10 +26,15 @@ namespace MishMashWebApp.Controllers
                     FollowersCount = x.Followers.Count(),
                 }).FirstOrDefault();
 
-            return this.View("Channels/Details", channelViewModel);
+            if (channelViewModel == null)
+            {
+                return this.BadRequestError("Invalid channel id.");
+            }
+
+            return this.View(channelViewModel);
         }
 
-        [HttpGet("/Channels/Followed")]
+       [Authorize]
         public IHttpResponse Followed()
         {
             if (this.User == null)
@@ -42,7 +43,7 @@ namespace MishMashWebApp.Controllers
             }
 
             var followedChannels = this.Db.Channels.Where(
-                    x => x.Followers.Any(f => f.User.Username == this.User))
+                    x => x.Followers.Any(f => f.User.Username == this.User.Username))
                             .Select(x => new BaseChannelViewModel
                             {
                                 Id = x.Id,
@@ -54,18 +55,14 @@ namespace MishMashWebApp.Controllers
             var viewModel = new FollowedChannelsViewModel
                 {FollowedChannels = followedChannels};
 
-            return this.View("Channels/Followed", viewModel);
+            return this.View(viewModel);
         }
 
-        [HttpGet("/Channels/Follow")]
+       [Authorize]
         public IHttpResponse Follow(int id)
         {
-            var user = this.Db.Users.FirstOrDefault(x => x.Username == this.User);
-            if (user == null)
-            {
-                return this.Redirect("/Users/Login");
-            }
-
+            var user = this.Db.Users.FirstOrDefault(x => x.Username == this.User.Username);
+           
             if (!this.Db.UserInChannel.Any(
                 x => x.UserId == user.Id && x.ChannelId == id))
             {
@@ -81,15 +78,11 @@ namespace MishMashWebApp.Controllers
             return this.Redirect("/Channels/Followed");
         }
 
-        [HttpGet("/Channels/Unfollow")]
+        [Authorize]
         public IHttpResponse Unfollow(int id)
         {
-            var user = this.Db.Users.FirstOrDefault(x => x.Username == this.User);
-            if (user == null)
-            {
-                return this.Redirect("/Users/Login");
-            }
-
+            var user = this.Db.Users.FirstOrDefault(x => x.Username == this.User.Username);
+         
             var userInChannel = this.Db.UserInChannel.FirstOrDefault(
                 x => x.UserId == user.Id && x.ChannelId == id);
             if (userInChannel != null)
@@ -101,30 +94,31 @@ namespace MishMashWebApp.Controllers
             return this.Redirect("/Channels/Followed");
         }
 
-        [HttpGet("Channels/Create")]
+        [Authorize]
         public IHttpResponse Create()
         {
-            var user = this.Db.Users.FirstOrDefault(x => x.Username == this.User);
-            if (user == null || user.Role != Role.Admin)
+            var user = this.Db.Users.FirstOrDefault(x => x.Username == this.User.Username);
+            if (user.Role != Role.Admin)
             {
                 return this.Redirect("/Users/Login");
             }
 
-            return this.View("Channels/Create");
+            return this.View();
         }
 
-        [HttpPost("Channels/Create")]
+        [Authorize]
+        [HttpPost]
         public IHttpResponse Create(CreateChannelsInputModel model)
         {
-            var user = this.Db.Users.FirstOrDefault(x => x.Username == this.User);
-            if (user == null || user.Role != Role.Admin)
+            var user = this.Db.Users.FirstOrDefault(x => x.Username == this.User.Username);
+            if (user.Role != Role.Admin)
             {
                 return this.Redirect("/Users/Login");
             }
 
             if (!Enum.TryParse(model.Type, true, out ChannelType type))
             {
-                return this.BadRequestError("Invalid channel type.");
+                return this.BadRequestErrorWithView("Invalid channel type.");
             }
 
             var channel = new Channel

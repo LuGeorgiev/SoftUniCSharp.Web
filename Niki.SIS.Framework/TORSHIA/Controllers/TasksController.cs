@@ -48,7 +48,7 @@ namespace TORSHIA.Controllers
         {
             var user = this.db
                 .Users
-                .FirstOrDefault(x => x.Username == this.User);
+                .FirstOrDefault(x => x.Username == this.User.Username);
             if (user.Role != Role.Admin)
             {
                 return this.Redirect("/Users/Login");
@@ -61,7 +61,7 @@ namespace TORSHIA.Controllers
         {
             var user = this.db
                 .Users
-                .FirstOrDefault(x => x.Username == this.User);
+                .FirstOrDefault(x => x.Username == this.User.Username);
             if (user.Role != Role.Admin)
             {
                 return this.Redirect("/Users/Login");

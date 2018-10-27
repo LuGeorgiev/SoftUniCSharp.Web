@@ -23,7 +23,7 @@
                         <li class="nav-item">
                             <a class="nav-link nav-link-white active" href="/">Home</a>
                         </li>
-                        @if (User != null)
+                        @if (User.IsLoggedIn)
                         {
                             <li class="nav-item">
                                 <a class="nav-link nav-link-white active" href="/Channels/Followed">My Channels</a>
