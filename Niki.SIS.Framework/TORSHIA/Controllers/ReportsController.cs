@@ -16,8 +16,8 @@ namespace TORSHIA.Controllers
         {
             this.rnd = new Random();
         }
-
-        [HttpGet("/Reports/Close")]
+              
+        [Authorize]
         public IHttpResponse Close(int id)
         {
             var user = this.db
@@ -33,7 +33,7 @@ namespace TORSHIA.Controllers
                 .FirstOrDefault(x => x.Id == id);
             if (task == null)
             {
-                this.BadRequestError($"Task with Id: {task.Id} was not found");
+                this.BadRequestErrorWithView($"Task with Id: {task.Id} was not found");
             }
 
 
@@ -59,8 +59,8 @@ namespace TORSHIA.Controllers
 
             return this.Redirect("/Home/Index");
         }
-
-        [HttpGet("/Reports/All")]
+            
+        [Authorize]
         public IHttpResponse All()
         {
             var user = this.db
@@ -86,19 +86,12 @@ namespace TORSHIA.Controllers
                 Reports = reports
             };
 
-            return this.View("/Reports/All", model);
+            return this.View(model);
         }
-
-        [HttpGet("/Reports/Details")]
+              
+        [Authorize]
         public IHttpResponse Details(int id)
         {
-            var user = this.db
-             .Users
-             .FirstOrDefault(x => x.Username == this.User.Username);
-            if (user.Role != Role.Admin)
-            {
-                return this.Redirect("/Users/Login");
-            }
 
             var report = this.db
                 .Reports
@@ -108,6 +101,14 @@ namespace TORSHIA.Controllers
                 this.BadRequestError($"Report with Id: {id} was not found!");
             }
 
+            var user = this.db
+             .Users
+             .FirstOrDefault(x => x.Id == report.ReporterId);
+            if (report == null)
+            {
+                this.BadRequestError($"Reporter with Id: {user.Id} was not found!");
+            }
+
             var model = new ReportDetailsViewModel
             {
                  Id=report.Id,                 
@@ -115,7 +116,7 @@ namespace TORSHIA.Controllers
                  DueDate=report.Task.DueDate==null?"No date": report.Task.DueDate.Value.ToString("dd/MM/yyyy"),
                  Level = report.Task.AffectedSectors.Count(),
                  Participants = report.Task.Participants,
-                 ReportedBy = this.User.Username,
+                 ReportedBy = user.Username,
                  ReportedDate = report.ReportedOn.ToString("dd/MM/yyyy"),
                  TaskTitle = report.Task.Title,
                  Status=report.Status.ToString()
@@ -128,7 +129,7 @@ namespace TORSHIA.Controllers
 
             model.AffectedSectors = affectedSectors;
 
-            return this.View("/Reports/Details", model);
+            return this.View(model);
         }
 
     }

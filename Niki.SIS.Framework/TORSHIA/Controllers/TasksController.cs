@@ -11,15 +11,11 @@ using TORSHIA.ViewModels.Tasks;
 namespace TORSHIA.Controllers
 {
     public class TasksController : BaseController
-    {
-        [HttpGet("/Tasks/Datails")]
+    {        
+        [Authorize]
+        [HttpGet("/Tasks/Details")]
         public IHttpResponse Details(int id)
-        {
-            
-            if (this.User == null)
-            {
-                return this.Redirect("/Users/Login");
-            }
+        {            
 
             var task = this.db
                 .Tasks
@@ -39,11 +35,10 @@ namespace TORSHIA.Controllers
                 DueDate = task.DueDate==null ? "No date set" : task.DueDate.Value.ToString()
             };
 
-            return this.View("/Tasks/Details", model);
+            return this.View(model);
         }
-
-
-        [HttpGet("Tasks/Create")]
+              
+        [Authorize]
         public IHttpResponse Create()
         {
             var user = this.db
@@ -53,9 +48,10 @@ namespace TORSHIA.Controllers
             {
                 return this.Redirect("/Users/Login");
             }
-            return this.View("/Tasks/Create");
+            return this.View();
         }
 
+        [Authorize]
         [HttpPost("Tasks/Create")]
         public IHttpResponse Create(CreateTaskViewModel model)
         {

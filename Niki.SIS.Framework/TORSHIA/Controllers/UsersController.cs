@@ -16,11 +16,13 @@ namespace TORSHIA.Controllers
     {
         private readonly IHashService hashService;
 
+        
         public UsersController(IHashService hashService)
         {
             this.hashService = hashService;
         }
 
+        
         [HttpPost("/Users/Register")]
         public IHttpResponse Register(RegisterViewModel model)
         {
@@ -84,11 +86,11 @@ namespace TORSHIA.Controllers
             return this.Redirect("/Users/Login");
         }
 
+        
         [HttpPost("/Users/Login")]
         public IHttpResponse Login(LogInViewModel model)
         {
             var hashedPassword = this.hashService.Hash(model.Password);
-
             var user = this.db.Users.FirstOrDefault(x =>
                 x.Username == model.Username.Trim() &&
                 x.Password == hashedPassword);
@@ -105,20 +107,18 @@ namespace TORSHIA.Controllers
             this.Response.Cookies.Add(cookie);
             return this.Redirect("/");
         }
-
-        [HttpGet("/Users/Register")]
+               
         public IHttpResponse Register()
         {
-            return this.View("/Users/Register");
+            return this.View();
         }
 
-        [HttpGet("/Users/Login")]
         public IHttpResponse Login()
         {
-            return this.View("/Users/LogIn");
+            return this.View();
         }
-
-        [HttpGet("/Users/Logout")]
+                
+        [Authorize]
         public IHttpResponse Logout()
         {
             if (!this.Request.Cookies.ContainsCookie(".auth-cakes"))
@@ -129,6 +129,7 @@ namespace TORSHIA.Controllers
             var cookie = this.Request.Cookies.GetCookie(".auth-cakes");
             cookie.Delete();
             this.Response.Cookies.Add(cookie);
+
             return this.Redirect("/");
         }
 

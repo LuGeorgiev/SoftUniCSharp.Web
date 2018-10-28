@@ -1,17 +1,17 @@
-﻿@if( Model.UserRole == "Admin")
+﻿@if( User.Role == "Admin")
 {
 <main class="mt-3">
-    <h4 class="text-torshia text-center">Welcome, Admin - @User !</h4>
+    <h4 class="text-torshia text-center">Welcome, Admin - @User.Username !</h4>
     <h4 class="text-torshia text-center">Enjoy your work!</h4>
-    <div class="follow-button-holder d-flex justify-content-between w-50 mx-auto mt-4">
+    <!--<div class="follow-button-holder d-flex justify-content-between w-50 mx-auto mt-4">
         <a href="/Tasks/Create" class="btn btn-primary"><h6 class="text-center text-white">Create Task</h6></a>
         <a href="/Reports/All" class="btn btn-info"><h6 class="text-center text-white">Reports</h6></a>
-    </div>
+    </div>-->
         }
         @else
         {
         <main class="mt-3">
-            <h4 class="text-torshia text-center">Welcome, @User !</h4>
+            <h4 class="text-torshia text-center">Welcome, @User.Username !</h4>
             <h4 class="text-torshia text-center">Have a nice tasking experience!</h4>
             }
             <hr class="hr-2 bg-torshia">
@@ -26,20 +26,10 @@
                         <hr class="bg-white hr-2 w-75">
                         <div class="follow-button-holder d-flex justify-content-between w-50 mx-auto mt-4">
                             <a href="/Reports/Close?id=@task.Id"><h6 class="text-center text-white">Report</h6></a>
-                            <a href="/Tasks/Datails?id=@task.Id"><h6 class="text-center text-white">Details</h6></a>
+                            <a href="/Tasks/Details?id=@task.Id"><h6 class="text-center text-white">Details</h6></a>
                         </div>
                     </div>
-                    }
-                    <!--<div class="task col mx-3 bg-torshia rounded py-3">
-                        <h6 class="task-title text-white text-center my-3">Fix Business Agenda</h6>
-                        <hr class="bg-white hr-2 w-75">
-                        <h6 class="task-title text-white text-center my-4">Level: 4</h6>
-                        <hr class="bg-white hr-2 w-75">
-                        <div class="follow-button-holder d-flex justify-content-between w-50 mx-auto mt-4">
-                            <a href="report"><h6 class="text-center text-white">Report</h6></a>
-                            <a href="details"><h6 class="text-center text-white">Details</h6></a>
-                        </div>
-                    </div>-->
+                    }                    
                     @for(var i = 0; i < Model.Tasks.Count() % 5; i++)
                     {
                     <div class="task col mx-3 bg-white rounded py-3"></div>

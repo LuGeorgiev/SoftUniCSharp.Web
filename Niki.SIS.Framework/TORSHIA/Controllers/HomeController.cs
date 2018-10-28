@@ -11,15 +11,11 @@ namespace TORSHIA.Controllers
 {
     public class HomeController : BaseController
     {
-        [HttpGet("/Home/Index")]
+        
         public IHttpResponse Index()
         {
             if (this.User!=null)
-            {
-                var user = this.db.Users
-                    .FirstOrDefault(x => x.Username == this.User.Username);
-
-                string role = user.Role.ToString();
+            {                               
 
                 var tasks = this.db.Tasks
                     .Where(x => x.IsReported == false)
@@ -32,21 +28,14 @@ namespace TORSHIA.Controllers
                     .ToArray();
 
                 LoggedInViewModel model = new LoggedInViewModel
-                {
-                     UserRole=role,
+                {                     
                      Tasks = tasks
                 };
 
                 return this.View("/Home/LoggedInIndex", model);
             }
 
-            return this.View("/Home/Index");
-        }
-
-        [HttpGet("/")]
-        public IHttpResponse RootIndex()
-        {
-            return this.Index();
+            return this.View();
         }
     }
 }
