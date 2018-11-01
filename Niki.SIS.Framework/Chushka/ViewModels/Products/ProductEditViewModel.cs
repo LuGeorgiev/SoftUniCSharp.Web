@@ -1,6 +1,6 @@
 ﻿namespace Chushka.ViewModels.Products
 {
-    public class ProducteditViewModel
+    public class ProductEditViewModel
     {
         public int Id { get; set; }
 

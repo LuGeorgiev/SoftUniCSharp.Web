@@ -78,7 +78,7 @@ namespace Chushka.Controllers
                 return this.BadRequestError("Product was not found in database");
             }
 
-            var model = new ProducteditViewModel
+            var model = new ProductEditViewModel
             {
                 Name=product.Name,
                 Description =product.Description,
@@ -115,8 +115,9 @@ namespace Chushka.Controllers
             product.Price = price;
             product.Type = type;
 
-            db.SaveChanges();
-
+            this.db.SaveChanges();
+            
+            //TODO redirect should be to details page
             return this.Redirect("/");
         }
 
@@ -132,7 +133,7 @@ namespace Chushka.Controllers
                 return this.BadRequestError("Product was not found in database");
             }
 
-            var model = new ProducteditViewModel
+            var model = new ProductEditViewModel
             {
                 Name = product.Name,
                 Description = product.Description,
@@ -155,8 +156,8 @@ namespace Chushka.Controllers
                 return this.BadRequestError("Product was not found in database");
             }
 
-            db.Products.Remove(product);
-            db.SaveChanges();
+            this.db.Products.Remove(product);
+            this.db.SaveChanges();
 
             return this.Redirect("/");
         }
