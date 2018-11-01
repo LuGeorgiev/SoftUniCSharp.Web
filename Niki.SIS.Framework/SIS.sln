@@ -15,7 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SIS.MvcFramework.Tests", "S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MishMashWebApp", "Apps\MishMashWebApp\MishMashWebApp.csproj", "{80557D81-352B-4938-A270-53E5A6DA1BD4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TORSHIA", "TORSHIA\TORSHIA.csproj", "{98B22A9B-C284-4593-8C8D-A929494D2116}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TORSHIA", "TORSHIA\TORSHIA.csproj", "{98B22A9B-C284-4593-8C8D-A929494D2116}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chushka", "Chushka\Chushka.csproj", "{5F93D0D8-0380-434E-8B95-61509C514E7A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,6 +49,10 @@ Global
 		{98B22A9B-C284-4593-8C8D-A929494D2116}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{98B22A9B-C284-4593-8C8D-A929494D2116}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{98B22A9B-C284-4593-8C8D-A929494D2116}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F93D0D8-0380-434E-8B95-61509C514E7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F93D0D8-0380-434E-8B95-61509C514E7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F93D0D8-0380-434E-8B95-61509C514E7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F93D0D8-0380-434E-8B95-61509C514E7A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -54,6 +60,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{80557D81-352B-4938-A270-53E5A6DA1BD4} = {18A044AE-91C4-48B0-AD7A-BCAC2FB995F6}
 		{98B22A9B-C284-4593-8C8D-A929494D2116} = {18A044AE-91C4-48B0-AD7A-BCAC2FB995F6}
+		{5F93D0D8-0380-434E-8B95-61509C514E7A} = {18A044AE-91C4-48B0-AD7A-BCAC2FB995F6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7DDABD09-DCFC-4DD2-996C-EDD241D1D1F0}

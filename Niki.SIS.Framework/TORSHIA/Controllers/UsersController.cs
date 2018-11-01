@@ -105,6 +105,7 @@ namespace TORSHIA.Controllers
 
             var cookie = new HttpCookie(".auth-cakes", cookieContent, 7) { HttpOnly = true };
             this.Response.Cookies.Add(cookie);
+
             return this.Redirect("/");
         }
                
