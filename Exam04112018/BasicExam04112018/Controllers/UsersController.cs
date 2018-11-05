@@ -43,7 +43,7 @@ namespace BasicExam04112018.Controllers
             return this.View();
         }
 
-        [HttpPost]
+        [HttpPost("/users/login")]
         public IHttpResponse Login(DoLoginInputModel model)
         {
             var hashedPassword = this.hashService.Hash(model.Password);
@@ -60,8 +60,7 @@ namespace BasicExam04112018.Controllers
             var mvcUser = new MvcUserInfo
             {
                 Username = user.Username,
-                Role = user.Role.ToString(),
-                Info = user.FullName,
+                Role = user.Role.ToString()
             };
             var cookieContent = this.UserCookieService.GetUserCookie(mvcUser);
 
@@ -125,7 +124,6 @@ namespace BasicExam04112018.Controllers
                 Email = model.Email.Trim(),
                 Password = hashedPassword,
                 Role = role,
-                FullName = model.FullName,
             };
             this.Db.Users.Add(user);
 

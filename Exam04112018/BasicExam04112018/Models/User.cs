@@ -8,7 +8,8 @@ namespace BasicExam04112018.Models
     {
         public User()
         {
-            //this.Orders = new HashSet<Order>();
+            this.Packages = new HashSet<Package>();
+            this.Receits = new HashSet<Receit>();
         }
 
         public int Id { get; set; }
@@ -17,12 +18,12 @@ namespace BasicExam04112018.Models
 
         public string Password { get; set; }
 
-        public string FullName { get; set; }
-
         public string Email { get; set; }
 
         public UserRole Role { get; set; }
 
-        //public virtual ICollection<Order> Orders { get; set; }
+        public virtual ICollection<Package> Packages { get; set; }
+
+        public virtual ICollection<Receit> Receits { get; set; }
     }
 }
